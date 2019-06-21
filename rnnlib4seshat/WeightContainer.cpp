@@ -39,24 +39,26 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 #include "WeightContainer.hpp"
 
+
+// template <class T> void perturb_weights(T& weights, T& stdDevs, bool additive = true)
+// {
+// 	assert(boost::size(weights) == boost::size(stdDevs));
+// 	LOOP(int i, indices(weights))
+// 	{
+// 		perturb_weight(weights[i], stdDevs[i], additive);
+// 	}
+// }
+
+// template <class R> void perturb_weights(R& weights, real_t stdDev, bool additive = true)
+// {
+// 	LOOP(real_t& w, weights)
+// 	{
+// 		perturb_weight(w, stdDev, additive);
+// 	}
+// }
+
+
 void perturb_weight(real_t& weight, real_t stdDev, bool additive)
 {
 	weight += Random::normal(fabs(additive ? stdDev : stdDev * weight));
-}
-
-
-template <class R> void perturb_weights(R& weights, real_t stdDev, bool additive = true)
-{
-	LOOP(real_t& w, weights)
-	{
-		perturb_weight(w, stdDev, additive);
-	}
-}
-template <class R> void perturb_weights(R& weights, R& stdDevs, bool additive = true)
-{
-	assert(boost::size(weights) == boost::size(stdDevs));
-	LOOP(int i, indices(weights))
-	{
-		perturb_weight(weights[i], stdDevs[i], additive);
-	}
 }

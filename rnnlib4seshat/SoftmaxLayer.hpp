@@ -98,6 +98,7 @@ struct SoftmaxLayer: public FlatLayer{
 		View<real_t> outErrs = this->outputErrors[coords];
 		real_t Z = inner_product(outActs, outErrs);
 		LOOP(TDDD t, zip(this->inputErrors[coords], outActs, outErrs))
+		//for (auto t : zip(this->inputErrors[coords], outActs, outErrs)))
 		{
 			t.get<0>() = t.get<1>() * (t.get<2>() - Z);
 		}

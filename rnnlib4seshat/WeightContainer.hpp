@@ -37,41 +37,42 @@ the following copyright and permission notice:
   You should have received a copy of the GNU General Public License
   along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_WeightContainer_h  
-#define _INCLUDED_WeightContainer_h  
+#ifndef _INCLUDED_WeightContainer_h
+#define _INCLUDED_WeightContainer_h
 
-#include <vector>
-#include <numeric>
+#include <math.h>
 #include <algorithm>
 #include <functional>
-#include <math.h>
-#include <boost/tuple/tuple.hpp>
-#include "Random.hpp"
+#include <numeric>
+#include <vector>
 #include "DataExporter.hpp"
+#include "Random.hpp"
 
 using namespace std;
 
-typedef multimap<string, tuple<string, string, int, int> >::iterator WC_CONN_IT; 
-typedef pair<string, tuple<string, string, int, int> > WC_CONN_PAIR;
+typedef multimap<std::string, boost::tuple<string, string, int, int> >::iterator WC_CONN_IT;
+typedef pair<string, boost::tuple<string, string, int, int> > WC_CONN_PAIR;
 
-struct WeightContainer: public DataExporter
-{
-  //data
+struct WeightContainer : public DataExporter {
+  // data
   Vector<real_t> weights;
   Vector<real_t> derivatives;
-  multimap<string, tuple<string, string, int, int> > connections;
-	
-  //functions
-  WeightContainer(DataExportHandler *deh):
-    DataExporter("weightContainer", deh)
-  {
+  multimap<std::string, boost::tuple<string, string, int, int> > connections;
+
+  // functions
+  WeightContainer(DataExportHandler* deh)
+      : DataExporter("weightContainer", deh) {}
+
+  void link_layers(const std::string& fromName, const std::string& toName,
+                   const std::string& connName = "", int paramBegin = 0,
+                   int paramEnd = 0) {
+    connections.insert(make_pair(
+        toName, boost::make_tuple(fromName, connName, paramBegin, paramEnd)));
   }
 
-  void link_layers(const string& fromName, const string& toName, const string& connName = "", int paramBegin = 0, int paramEnd = 0) {
-    connections.insert(make_pair(toName, make_tuple(fromName, connName, paramBegin, paramEnd)));
-  }
-  
-  pair<size_t, size_t> new_parameters(size_t numParams, const string& fromName, const string& toName, const string& connName) {
+  pair<size_t, size_t> new_parameters(size_t numParams, const string& fromName,
+                                      const string& toName,
+                                      const string& connName) {
     size_t begin = weights.size();
     weights.resize(weights.size() + numParams);
     size_t end = weights.size();
@@ -79,51 +80,39 @@ struct WeightContainer: public DataExporter
     return make_pair(begin, end);
   }
 
-  View<real_t> get_weights(pair<int, int> range)
-  {
+  View<real_t> get_weights(pair<int, int> range) {
     return weights.slice(range);
   }
 
-  View<real_t> get_derivs(pair<int, int> range)
-  {
+  View<real_t> get_derivs(pair<int, int> range) {
     return derivatives.slice(range);
   }
 
-  int randomise(real_t range)
-  {
+  int randomise(real_t range) {
     int numRandWts = 0;
-    LOOP(real_t& w, weights)
-      {
-	if (w == infinity)
-	  {
-	    w = Random::uniform(range);
-	    ++numRandWts;
-	  }
+    LOOP(real_t & w, weights) {
+      if (w == infinity) {
+        w = Random::uniform(range);
+        ++numRandWts;
       }
+    }
     return numRandWts;
   }
 
-  void reset_derivs()
-  {
-    fill(derivatives, 0);
-  }
+  void reset_derivs() { fill(derivatives, 0); }
 
-  void save_by_conns(vector<real_t>& container, const string& nam)
-  {
-    LOOP(const WC_CONN_PAIR& p, connections)
-      {
-	VDI begin = container.begin() + p.second.get<2>();
-	VDI end = container.begin() + p.second.get<3>();
-	if (begin != end)
-	  {
-	    save_range(make_pair(begin, end), p.second.get<1>() + "_" + nam);
-	  }
+  void save_by_conns(vector<real_t>& container, const string& nam) {
+    LOOP(const WC_CONN_PAIR& p, connections) {
+      VDI begin = container.begin() + p.second.get<2>();
+      VDI end = container.begin() + p.second.get<3>();
+      if (begin != end) {
+        save_range(make_pair(begin, end), p.second.get<1>() + "_" + nam);
       }
+    }
   }
 
-  //MUST BE CALLED BEFORE WEIGHT CONTAINER IS USED
-  void build()
-  {
+  // MUST BE CALLED BEFORE WEIGHT CONTAINER IS USED
+  void build() {
     fill(weights, infinity);
     derivatives.resize(weights.size());
     save_by_conns(weights, "weights");
@@ -132,7 +121,9 @@ struct WeightContainer: public DataExporter
 };
 
 void perturb_weight(real_t& weight, real_t stdDev, bool additive = true);
-template <class R> void perturb_weights(R& weights, real_t stdDev, bool additive = true);
-template <class R> void perturb_weights(R& weights, R& stdDevs, bool additive = true);
+template <class R>
+void perturb_weights(R& weights, real_t stdDev, bool additive = true);
+template <class R>
+void perturb_weights(R& weights, R& stdDevs, bool additive = true);
 
 #endif

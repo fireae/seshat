@@ -44,7 +44,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 #include <string>
 #include <vector>
-
+#include "Helpers.hpp"
 #include "SeqBuffer.hpp"
 #include "DataExporter.hpp"
 #include "WeightContainer.hpp"

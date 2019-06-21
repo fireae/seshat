@@ -41,6 +41,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #define _INCLUDED_NeuronLayer_h  
 
 #include "Layer.hpp"
+#include "Helpers.hpp"
 
 template <class F> struct NeuronLayer: public FlatLayer
 {
@@ -68,10 +69,10 @@ template <class F> struct NeuronLayer: public FlatLayer
 	}
 	void feed_back(const vector<int>& coords)
 	{
-		LOOP(TDDD t, zip(this->inputErrors[coords], this->outputActivations[coords], this->outputErrors[coords]))
-		{
-			t.get<0>() = F::deriv(t.get<1>()) * t.get<2>();
-		}
+		// LOOP(TDDD t, zip(this->inputErrors[coords], this->outputActivations[coords], this->outputErrors[coords]))
+		// {
+		// 	t.get<0>() = F::deriv(t.get<1>()) * t.get<2>();
+		// }
 	}
 };
 

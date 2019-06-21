@@ -35,6 +35,16 @@ class SymFeatures;
 #include "rnnlib4seshat/SteepestDescent.hpp"
 #include "rnnlib4seshat/Trainer.hpp"
 #include "rnnlib4seshat/WeightContainer.hpp"
+
+// #include "DataSequence.hpp"
+// #include "NetcdfDataset.hpp"
+// #include "Mdrnn.hpp"
+// #include "MultilayerNet.hpp"
+// #include "Rprop.hpp"
+// #include "SteepestDescent.hpp"
+// #include "Trainer.hpp"
+// #include "WeightContainer.hpp"
+
 #include "sample.h"
 #include "symfeatures.h"
 
