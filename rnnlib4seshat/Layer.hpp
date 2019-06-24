@@ -44,14 +44,14 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 #include <string>
 #include <vector>
+#include "DataExporter.hpp"
 #include "Helpers.hpp"
 #include "SeqBuffer.hpp"
-#include "DataExporter.hpp"
 #include "WeightContainer.hpp"
 
 extern bool verbose;
 
-struct Layer: public DataExporter {
+struct Layer : public DataExporter {
   // typedefs
   // typedef multi_array<real_t, 3> array3d;
 
@@ -62,46 +62,45 @@ struct Layer: public DataExporter {
   SeqBuffer<real_t> inputErrors;
   SeqBuffer<real_t> outputErrors;
   Layer* source;
-  WeightContainer *wc;
+  WeightContainer* wc;
 
   // functions
-  Layer(
-      const string& name, size_t numSeqDims, size_t inputSize,
-      size_t outputSize, WeightContainer *weight, DataExportHandler *deh, Layer* src = 0):
-    DataExporter(name, deh), inputActivations(inputSize),
-    outputActivations(outputSize), inputErrors(inputSize),
-    outputErrors(outputSize), source(src) {
+  Layer(const string& name, size_t numSeqDims, size_t inputSize,
+        size_t outputSize, WeightContainer* weight, DataExportHandler* deh,
+        Layer* src = 0)
+      : DataExporter(name, deh),
+        inputActivations(inputSize),
+        outputActivations(outputSize),
+        inputErrors(inputSize),
+        outputErrors(outputSize),
+        source(src) {
     wc = weight;
     assert(inputSize || outputSize);
     directions.resize(numSeqDims, 1);
   }
 
-  Layer(
-      const string& name, const vector<int>& dirs, size_t inputSize,
-      size_t outputSize, WeightContainer *weight, DataExportHandler *deh, Layer* src = 0):
-    DataExporter(name, deh), directions(dirs), inputActivations(inputSize),
-      outputActivations(outputSize), inputErrors(inputSize),
-      outputErrors(outputSize), source(src) {
+  Layer(const string& name, const vector<int>& dirs, size_t inputSize,
+        size_t outputSize, WeightContainer* weight, DataExportHandler* deh,
+        Layer* src = 0)
+      : DataExporter(name, deh),
+        directions(dirs),
+        inputActivations(inputSize),
+        outputActivations(outputSize),
+        inputErrors(inputSize),
+        outputErrors(outputSize),
+        source(src) {
     wc = weight;
     assert(inputSize || outputSize);
-    LOOP(int d, directions) {
-      assert(d == 1 || d == -1);
-    }
+    LOOP(int d, directions) { assert(d == 1 || d == -1); }
   }
 
   virtual ~Layer() {}
 
-  virtual size_t input_size() const {
-    return inputActivations.depth;
-  }
+  virtual size_t input_size() const { return inputActivations.depth; }
 
-  virtual size_t output_size() const {
-    return outputActivations.depth;
-  }
+  virtual size_t output_size() const { return outputActivations.depth; }
 
-  virtual size_t num_seq_dims() const {
-    return directions.size();
-  }
+  virtual size_t num_seq_dims() const { return directions.size(); }
 
   virtual const View<const size_t> output_seq_shape() const {
     return outputActivations.seq_shape();
@@ -116,13 +115,13 @@ struct Layer: public DataExporter {
   }
 
   virtual SeqIterator input_seq_begin() const {
-    return input_size() ? inputActivations.begin(directions) :
-        outputActivations.begin(directions);
+    return input_size() ? inputActivations.begin(directions)
+                        : outputActivations.begin(directions);
   }
 
   virtual SeqIterator input_seq_rbegin() const {
-    return input_size() ? inputActivations.rbegin(directions) :
-        outputActivations.rbegin(directions);
+    return input_size() ? inputActivations.rbegin(directions)
+                        : outputActivations.rbegin(directions);
   }
 
   virtual void print(ostream& out = cout) const {
@@ -131,9 +130,7 @@ struct Layer: public DataExporter {
     out << " " << num_seq_dims() << "D";
     if (directions.size()) {
       out << " (";
-      LOOP(int d, directions) {
-        out << ((d > 0) ? "+" : "-");
-      }
+      LOOP(int d, directions) { out << ((d > 0) ? "+" : "-"); }
       out << ")";
     }
     if (input_size() == 0) {
@@ -141,16 +138,14 @@ struct Layer: public DataExporter {
     } else if (output_size() == 0 || input_size() == output_size()) {
       out << " size " << input_size();
     } else {
-      out << " inputSize " << input_size()  << " outputSize " << output_size();
+      out << " inputSize " << input_size() << " outputSize " << output_size();
     }
     if (source) {
       out << " source \"" << source->name << "\"";
     }
   }
 
-  virtual void build() {
-    assert(source);
-  }
+  virtual void build() { assert(source); }
 
   virtual void reshape_errors() {
     inputErrors.reshape(inputActivations, 0);
@@ -178,20 +173,19 @@ struct Layer: public DataExporter {
 
   virtual void update_derivs(const vector<int>& coords) {}
 
-  virtual const View<real_t> weights() {
-    return View<real_t>();
-  }
+  virtual const View<real_t> weights() { return View<real_t>(); }
 };
 
-ostream& operator <<(ostream& out, const Layer& l);
+ostream& operator<<(ostream& out, const Layer& l);
 
-struct FlatLayer: public Layer {
-  FlatLayer(const string& name, size_t numSeqDims, size_t size, WeightContainer *weight, DataExportHandler *deh, Layer* src = 0):
-    Layer(name, numSeqDims, size, size, weight, deh, src) {}
+struct FlatLayer : public Layer {
+  FlatLayer(const string& name, size_t numSeqDims, size_t size,
+            WeightContainer* weight, DataExportHandler* deh, Layer* src = 0)
+      : Layer(name, numSeqDims, size, size, weight, deh, src) {}
 
-  FlatLayer(
-	    const string& name, const vector<int>& dirs, size_t size, WeightContainer *weight, DataExportHandler *deh, Layer* src = 0):
-    Layer(name, dirs, size, size, weight, deh, src) {}
+  FlatLayer(const string& name, const vector<int>& dirs, size_t size,
+            WeightContainer* weight, DataExportHandler* deh, Layer* src = 0)
+      : Layer(name, dirs, size, size, weight, deh, src) {}
 };
 
 #endif

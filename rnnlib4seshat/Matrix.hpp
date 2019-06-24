@@ -25,11 +25,10 @@ static uint64_t matrixOps = 0;
 #endif
 
 // M += a * b
-static void outer(
-    const real_t *aBegin, const real_t *aEnd, real_t *M, const real_t *b,
-    const real_t *bEnd) {
+static void outer(const real_t *aBegin, const real_t *aEnd, real_t *M,
+                  const real_t *b, const real_t *bEnd) {
 #ifdef OP_TRACKING
-  const real_t* mStart = M;
+  const real_t *mStart = M;
 #endif
   for (; b != bEnd; ++b) {
     real_t input = *b;
@@ -43,11 +42,10 @@ static void outer(
 }
 
 // out += M in
-static void dot(
-    const real_t *inBegin, const real_t *inEnd, const real_t *M, real_t *out,
-    real_t *outEnd) {
+static void dot(const real_t *inBegin, const real_t *inEnd, const real_t *M,
+                real_t *out, real_t *outEnd) {
 #ifdef OP_TRACKING
-  const real_t* mStart = M;
+  const real_t *mStart = M;
 #endif
   for (; out != outEnd; ++out) {
     real_t sum = 0;
@@ -62,11 +60,10 @@ static void dot(
 }
 
 // out += transpose(M) in
-static void dot_transpose(
-    const real_t *in, const real_t *inEnd, const real_t *M, real_t *outBegin,
-    real_t *outEnd) {
+static void dot_transpose(const real_t *in, const real_t *inEnd,
+                          const real_t *M, real_t *outBegin, real_t *outEnd) {
 #ifdef OP_TRACKING
-  const real_t* mStart = M;
+  const real_t *mStart = M;
 #endif
   for (; in != inEnd; ++in) {
     real_t input = *in;
@@ -80,11 +77,11 @@ static void dot_transpose(
 }
 
 // out += transpose(M^2) in
-static void dot_transpose_m_squared(
-    const real_t *in, const real_t *inEnd, const real_t *M, real_t *outBegin,
-    real_t *outEnd) {
+static void dot_transpose_m_squared(const real_t *in, const real_t *inEnd,
+                                    const real_t *M, real_t *outBegin,
+                                    real_t *outEnd) {
 #ifdef OP_TRACKING
-  const real_t* mStart = M;
+  const real_t *mStart = M;
 #endif
   for (; in != inEnd; ++in) {
     real_t input = *in;
@@ -98,11 +95,10 @@ static void dot_transpose_m_squared(
 }
 
 // M += a^2 * b
-static void outer_a_squared(
-    const real_t *aBegin, const real_t *aEnd, real_t *M, const real_t *b,
-    const real_t *bEnd) {
+static void outer_a_squared(const real_t *aBegin, const real_t *aEnd, real_t *M,
+                            const real_t *b, const real_t *bEnd) {
 #ifdef OP_TRACKING
-  const real_t* mStart = M;
+  const real_t *mStart = M;
 #endif
   for (; b != bEnd; ++b) {
     real_t input = *b;
@@ -115,33 +111,35 @@ static void outer_a_squared(
 #endif
 }
 
-template<class R> static void outer(const R& a, real_t *M, const R&b) {
+template <class R>
+static void outer(const R &a, real_t *M, const R &b) {
   outer(boost::begin(a), boost::end(a), M, boost::begin(b), boost::end(b));
 }
 
-template<class R> static void dot(const R& a, const real_t *M, const R& b) {
+template <class R>
+static void dot(const R &a, const real_t *M, const R &b) {
   dot(boost::begin(a), boost::end(a), M, boost::begin(b), boost::end(b));
 }
 
-template<class R> static void dot_transpose(
-    const R& a, const real_t *M, const R& b) {
-  dot_transpose(
-      boost::begin(a), boost::end(a), M, boost::begin(b), boost::end(b));
+template <class R>
+static void dot_transpose(const R &a, const real_t *M, const R &b) {
+  dot_transpose(boost::begin(a), boost::end(a), M, boost::begin(b),
+                boost::end(b));
 }
 
-template<class R> static void outer_a_squared(
-    const R& a, real_t *M, const R&b) {
-  outer_a_squared(
-      boost::begin(a), boost::end(a), M, boost::begin(b), boost::end(b));
+template <class R>
+static void outer_a_squared(const R &a, real_t *M, const R &b) {
+  outer_a_squared(boost::begin(a), boost::end(a), M, boost::begin(b),
+                  boost::end(b));
 }
 
-template<class R> static void dot_transpose_m_squared(
-    const R& a, const real_t *M, const R& b) {
-  dot_transpose_m_squared(
-      boost::begin(a), boost::end(a), M, boost::begin(b), boost::end(b));
+template <class R>
+static void dot_transpose_m_squared(const R &a, const real_t *M, const R &b) {
+  dot_transpose_m_squared(boost::begin(a), boost::end(a), M, boost::begin(b),
+                          boost::end(b));
 }
 
-static real_t& elt(View<real_t> M, int x, int y, int width) {
-  return M[(y*width) + x];
+static real_t &elt(View<real_t> M, int x, int y, int width) {
+  return M[(y * width) + x];
 }
 #endif

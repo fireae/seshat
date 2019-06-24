@@ -37,43 +37,42 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_NeuronLayer_h  
-#define _INCLUDED_NeuronLayer_h  
+#ifndef _INCLUDED_NeuronLayer_h
+#define _INCLUDED_NeuronLayer_h
 
-#include "Layer.hpp"
 #include "Helpers.hpp"
+#include "Layer.hpp"
 
-template <class F> struct NeuronLayer: public FlatLayer
-{
-  NeuronLayer(const string& name, size_t numDims, size_t size, WeightContainer *weight, DataExportHandler *deh):
-    FlatLayer(name, numDims, size, weight, deh)
-	{
-		init();
-	}
-  NeuronLayer(const string& name, const vector<int>& directions, size_t size, WeightContainer *weight, DataExportHandler *deh):
-    FlatLayer(name, directions, size, weight, deh)
-	{
-		init();
-	}
-	~NeuronLayer(){}
-	void init()
-	{
-		display(this->inputActivations, "inputActivations");
-		display(this->outputActivations, "outputActivations");
-		display(this->inputErrors, "inputErrors");
-		display(this->outputErrors, "outputErrors");	
-	}
-	void feed_forward(const vector<int>& coords)
-	{
-		transform(this->inputActivations[coords], this->outputActivations[coords], F::fn);
-	}
-	void feed_back(const vector<int>& coords)
-	{
-		// LOOP(TDDD t, zip(this->inputErrors[coords], this->outputActivations[coords], this->outputErrors[coords]))
-		// {
-		// 	t.get<0>() = F::deriv(t.get<1>()) * t.get<2>();
-		// }
-	}
+template <class F>
+struct NeuronLayer : public FlatLayer {
+  NeuronLayer(const string& name, size_t numDims, size_t size,
+              WeightContainer* weight, DataExportHandler* deh)
+      : FlatLayer(name, numDims, size, weight, deh) {
+    init();
+  }
+  NeuronLayer(const string& name, const vector<int>& directions, size_t size,
+              WeightContainer* weight, DataExportHandler* deh)
+      : FlatLayer(name, directions, size, weight, deh) {
+    init();
+  }
+  ~NeuronLayer() {}
+  void init() {
+    display(this->inputActivations, "inputActivations");
+    display(this->outputActivations, "outputActivations");
+    display(this->inputErrors, "inputErrors");
+    display(this->outputErrors, "outputErrors");
+  }
+  void feed_forward(const vector<int>& coords) {
+    transform(this->inputActivations[coords], this->outputActivations[coords],
+              F::fn);
+  }
+  void feed_back(const vector<int>& coords) {
+    // LOOP(TDDD t, zip(this->inputErrors[coords],
+    // this->outputActivations[coords], this->outputErrors[coords]))
+    // {
+    // 	t.get<0>() = F::deriv(t.get<1>()) * t.get<2>();
+    // }
+  }
 };
 
 #endif

@@ -48,33 +48,32 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <utility>
 #include <vector>
 
-#include "Named.hpp"
-#include "Helpers.hpp"
-#include "SeqBuffer.hpp"
 #include "ConfigFile.hpp"
+#include "Helpers.hpp"
+#include "Named.hpp"
+#include "SeqBuffer.hpp"
 
-#define SAVE(x) (save (x, #x))
-#define DISPLAY(x) (display (x, #x))
+#define SAVE(x) (save(x, #x))
+#define DISPLAY(x) (display(x, #x))
 
 struct Val {
   virtual void print(ostream& out) const = 0;
-  virtual bool load(istream& in, ostream& out = cout) {
-    return false;
-  }
-  virtual ~Val(){}
+  virtual bool load(istream& in, ostream& out = cout) { return false; }
+  virtual ~Val() {}
 };
 
-static ostream& operator <<(ostream& out, const Val& v) {
+static ostream& operator<<(ostream& out, const Val& v) {
   v.print(out);
   return out;
 }
 
-static istream& operator >>(istream& in, Val& v) {
+static istream& operator>>(istream& in, Val& v) {
   v.load(in);
   return in;
 }
 
-template <typename R> struct RangeVal: public Val {
+template <typename R>
+struct RangeVal : public Val {
   // data
   R range;
 
@@ -102,16 +101,15 @@ template <typename R> struct RangeVal: public Val {
   }
 };
 
-template <typename T> struct ParamVal: public Val {
+template <typename T>
+struct ParamVal : public Val {
   // data
   T& param;
 
   // functions
-  explicit ParamVal(T& p): param(p) {}
+  explicit ParamVal(T& p) : param(p) {}
 
-  void print(ostream& out) const {
-    out << param;
-  }
+  void print(ostream& out) const { out << param; }
 
   bool load(istream& in, ostream& out = cout) {
     (in >> param);
@@ -119,14 +117,15 @@ template <typename T> struct ParamVal: public Val {
   }
 };
 
-template <typename T> struct SeqBufferVal: public Val {
+template <typename T>
+struct SeqBufferVal : public Val {
   // data
   const SeqBuffer<T>& array;
   const vector<string>* labels;
 
   // functions
-  SeqBufferVal(const SeqBuffer<T>& a, const vector<string>* labs = 0):
-      array(a), labels(labs) {}
+  SeqBufferVal(const SeqBuffer<T>& a, const vector<string>* labs = 0)
+      : array(a), labels(labs) {}
 
   void print(ostream& out) const {
     if (!array.empty()) {
@@ -160,18 +159,19 @@ struct DataExportHandler {
   void display(const string& path) const;
 };
 
-static ostream& operator << (ostream& out, const DataExportHandler& de) {
+static ostream& operator<<(ostream& out, const DataExportHandler& de) {
   de.save(out);
   return out;
 }
 
-struct DataExporter: public Named {
+struct DataExporter : public Named {
   // data
   map<string, Val*> saveVals;
   map<string, Val*> displayVals;
 
   // functions
-  explicit DataExporter(const string& name, DataExportHandler *DEH): Named(name) {
+  explicit DataExporter(const string& name, DataExportHandler* DEH)
+      : Named(name) {
     DEH->dataExporters[name] = this;
   }
   ~DataExporter() {
@@ -184,11 +184,11 @@ struct DataExporter: public Named {
     }
   }
   bool load(ConfigFile& conf, ostream& out = cout) {
-    LOOP(PSPV& val, saveVals) {
+    LOOP(PSPV & val, saveVals) {
       string lookupName = name + "_" + val.first;
       string displayName = name + "." + val.first;
       if (verbose) {
-        out << "loading "<< displayName << endl;
+        out << "loading " << displayName << endl;
       }
       map<string, string>::iterator stringIt = conf.params.find(lookupName);
       if (stringIt == conf.params.end()) {
@@ -212,23 +212,25 @@ struct DataExporter: public Named {
       vals.erase(name);
     }
   }
-  template<typename T> void save(T& param, const string& name) {
+  template <typename T>
+  void save(T& param, const string& name) {
     delete_val(saveVals, name);
     saveVals[name] = new ParamVal<T>(param);
   }
-  template<typename R> void save_range(const R& range, const string& name) {
+  template <typename R>
+  void save_range(const R& range, const string& name) {
     delete_val(saveVals, name);
     saveVals[name] = new RangeVal<R>(range);
   }
-  template <typename T> void display(
-      const SeqBuffer<T>& array, const string& name,
-      const vector<string>* labels = 0) {
+  template <typename T>
+  void display(const SeqBuffer<T>& array, const string& name,
+               const vector<string>* labels = 0) {
     delete_val(displayVals, name);
     displayVals[name] = new SeqBufferVal<T>(array, labels);
   }
 };
 
-static ostream& operator <<(ostream& out, const DataExporter& d) {
+static ostream& operator<<(ostream& out, const DataExporter& d) {
   d.save(out);
   return out;
 }

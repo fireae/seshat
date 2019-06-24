@@ -47,24 +47,27 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include "DataExporter.hpp"
 #include "Optimiser.hpp"
 
-
 using namespace std;
 extern bool verbose;
 
-struct SteepestDescent: public DataExporter, public Optimiser {
+struct SteepestDescent : public DataExporter, public Optimiser {
   // data
   ostream& out;
   vector<real_t> deltas;
   real_t learnRate;
   real_t momentum;
-  WeightContainer *wc;
+  WeightContainer* wc;
 
   // functions
-  SteepestDescent(
-      const string& name, ostream& o, vector<real_t>& weights,
-      vector<real_t>& derivatives, WeightContainer *weight, DataExportHandler *deh, real_t lr = 1e-4, real_t mom = 0.9):
-    DataExporter(name, deh), Optimiser(weights, derivatives), out(o),
-      learnRate(lr), momentum(mom), wc(weight) {
+  SteepestDescent(const string& name, ostream& o, vector<real_t>& weights,
+                  vector<real_t>& derivatives, WeightContainer* weight,
+                  DataExportHandler* deh, real_t lr = 1e-4, real_t mom = 0.9)
+      : DataExporter(name, deh),
+        Optimiser(weights, derivatives),
+        out(o),
+        learnRate(lr),
+        momentum(mom),
+        wc(weight) {
     build();
   }
 

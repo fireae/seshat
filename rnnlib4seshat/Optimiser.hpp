@@ -53,9 +53,8 @@ struct Optimiser {
   vector<real_t>& derivs;
 
   // functions
-  Optimiser(vector<real_t>& weights, vector<real_t>& derivatives):
-      wts(weights), derivs(derivatives) {
-  }
+  Optimiser(vector<real_t>& weights, vector<real_t>& derivatives)
+      : wts(weights), derivs(derivatives) {}
 
   virtual ~Optimiser() {}
   virtual void update_weights() = 0;
@@ -63,6 +62,6 @@ struct Optimiser {
   virtual void build() = 0;
 };
 
-ostream& operator << (ostream& out, const Optimiser& o);
+ostream& operator<<(ostream& out, const Optimiser& o);
 
 #endif

@@ -39,12 +39,16 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 #include "ClassificationLayer.hpp"
 
-ClassificationLayer* make_classification_layer(ostream& out, const string& name, size_t numSeqDims, const vector<string>& labels, WeightContainer *weight, DataExportHandler *deh)
-{
-	assert(labels.size() >= 2);
-	if (labels.size() == 2)
-	{
-	  return new BinaryClassificationLayer(out, name, numSeqDims, labels, weight, deh);
-	}
-	return new MulticlassClassificationLayer(out, name, numSeqDims, labels, weight, deh);
+ClassificationLayer* make_classification_layer(ostream& out, const string& name,
+                                               size_t numSeqDims,
+                                               const vector<string>& labels,
+                                               WeightContainer* weight,
+                                               DataExportHandler* deh) {
+  assert(labels.size() >= 2);
+  if (labels.size() == 2) {
+    return new BinaryClassificationLayer(out, name, numSeqDims, labels, weight,
+                                         deh);
+  }
+  return new MulticlassClassificationLayer(out, name, numSeqDims, labels,
+                                           weight, deh);
 }

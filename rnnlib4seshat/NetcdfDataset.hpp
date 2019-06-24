@@ -37,14 +37,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_NetcdfDataset_h  
-#define _INCLUDED_NetcdfDataset_h  
+#ifndef _INCLUDED_NetcdfDataset_h
+#define _INCLUDED_NetcdfDataset_h
 
-#include <functional>
 #include <algorithm>
-#include <string>
-#include <numeric>
+#include <functional>
 #include <map>
+#include <numeric>
+#include <string>
 //#include <netcdfcpp.h>
 #include <boost/algorithm/string/replace.hpp>
 #include "DataSequence.hpp"
@@ -53,26 +53,21 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #define SEQ_IT vector<DataSequence*>::iterator
 #define CONST_SEQ_IT vector<DataSequence*>::const_iterator
 
+struct DataHeader {
+  // data
+  int numDims;
+  Vector<string> inputLabels;
+  map<string, int> inputLabelCounts;
+  Vector<string> targetLabels;
+  map<string, int> targetLabelCounts;
+  size_t inputSize;
+  size_t outputSize;
+  size_t numSequences;
+  size_t numTimesteps;
+  size_t totalTargetStringLength;
 
-struct DataHeader
-{
-	//data
-	int numDims;
-	Vector<string> inputLabels;
-	map<string, int> inputLabelCounts;
-	Vector<string> targetLabels;
-	map<string, int> targetLabelCounts;
-	size_t inputSize;
-	size_t outputSize;
-	size_t numSequences;
-	size_t numTimesteps;
-	size_t totalTargetStringLength;
-
-	//functions
-  DataHeader(): outputSize(0),
-		numTimesteps(0),
-		totalTargetStringLength(0)
-  {}
+  // functions
+  DataHeader() : outputSize(0), numTimesteps(0), totalTargetStringLength(0) {}
 };
 
 #endif

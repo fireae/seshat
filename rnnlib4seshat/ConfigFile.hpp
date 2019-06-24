@@ -18,33 +18,34 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #ifndef _INCLUDED_ConfigFile_h
 #define _INCLUDED_ConfigFile_h
 
-#include <iostream>
-#include <map>
-#include <string>
-#include <sstream>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
+#include <map>
+#include <sstream>
+#include <string>
 #include "Helpers.hpp"
 #include "String.hpp"
 
 using namespace std;
 
 struct ConfigFile {
-  //data
+  // data
   set<string> used;
   map<string, string> params;
   string filename;
 
-  //functions
-  ConfigFile(const string& fname, char readLineChar = '_'): filename(fname) {
+  // functions
+  ConfigFile(const string& fname, char readLineChar = '_') : filename(fname) {
     ifstream instream(filename.c_str());
-    check(instream.is_open(), "could not open config file \"" + filename + "\"");
+    check(instream.is_open(),
+          "could not open config file \"" + filename + "\"");
     string name;
     string val;
-    while(instream >> name && instream >> val) {
+    while (instream >> name && instream >> val) {
       string line;
       getline(instream, line);
-      if(name[0] != '#') {
+      if (name[0] != '#') {
         if (in(name, readLineChar) && line.size() > 1) {
           val += line;
         }
@@ -52,9 +53,7 @@ struct ConfigFile {
       }
     }
   }
-  bool contains(const string& name) const {
-    return in(params, name);
-  }
+  bool contains(const string& name) const { return in(params, name); }
   bool remove(const string& name) {
     if (contains(name)) {
       params.erase(name);
@@ -63,8 +62,8 @@ struct ConfigFile {
     }
     return false;
   }
-  template<class T> const T& set_val(
-      const string& name, const T& val, bool valUsed = true) {
+  template <class T>
+  const T& set_val(const string& name, const T& val, bool valUsed = true) {
     stringstream ss;
     ss << boolalpha << val;
     params[name] = ss.str();
@@ -73,7 +72,8 @@ struct ConfigFile {
     }
     return val;
   }
-  template<class T> T get(const string& name, const T& defaultVal) {
+  template <class T>
+  T get(const string& name, const T& defaultVal) {
     MSSI it = params.find(name);
     if (it == params.end()) {
       set_val<T>(name, defaultVal);
@@ -81,14 +81,16 @@ struct ConfigFile {
     }
     return get<T>(name);
   }
-  template<class T> T get(const string& name) {
+  template <class T>
+  T get(const string& name) {
     MSSCI it = params.find(name);
-    check(it != params.end(), "param '" + name + "' not found in config file '" + filename);
+    check(it != params.end(),
+          "param '" + name + "' not found in config file '" + filename);
     used.insert(name);
     return read<T>(it->second);
   }
-  template<class T> Vector<T> get_list(
-      const string& name, const char delim = ',') {
+  template <class T>
+  Vector<T> get_list(const string& name, const char delim = ',') {
     Vector<T> vect;
     MSSCI it = params.find(name);
     if (it != params.end()) {
@@ -97,16 +99,17 @@ struct ConfigFile {
     }
     return vect;
   }
-  template<class T> Vector<T> get_list(
-      const string& name, const T& defaultVal, size_t length,
-      const char delim = ',') {
+  template <class T>
+  Vector<T> get_list(const string& name, const T& defaultVal, size_t length,
+                     const char delim = ',') {
     Vector<T> vect = get_list<T>(name, delim);
     vect.resize(length, vect.size() == 1 ? vect.front() : defaultVal);
     used.insert(name);
     return vect;
   }
-  template<class T> Vector<Vector<T> > get_array(
-      const string& name, const char delim1 = ';', const char delim2 = ',') {
+  template <class T>
+  Vector<Vector<T> > get_array(const string& name, const char delim1 = ';',
+                               const char delim2 = ',') {
     Vector<Vector<T> > array;
     MSSCI it = params.find(name);
     if (it != params.end()) {
@@ -117,13 +120,14 @@ struct ConfigFile {
     }
     return array;
   }
-  template<class T> Vector<Vector<T> > get_array(
-      const string& name, const string& defaultStr, size_t length,
-      const char delim1 = ';', const char delim2 = ',') {
+  template <class T>
+  Vector<Vector<T> > get_array(const string& name, const string& defaultStr,
+                               size_t length, const char delim1 = ';',
+                               const char delim2 = ',') {
     Vector<Vector<T> > array = get_array<T>(name, delim1, delim2);
-    array.resize(
-        length, array.size() == 1 ?
-        array.front() : split_with_repeat<T>(defaultStr, delim2));
+    array.resize(length, array.size() == 1
+                             ? array.front()
+                             : split_with_repeat<T>(defaultStr, delim2));
     used.insert(name);
     return array;
   }
@@ -135,7 +139,7 @@ struct ConfigFile {
       }
     }
     if (unused.size()) {
-      LOOP(string& s, unused) {
+      LOOP(string & s, unused) {
         out << "WARNING: " << s << " in config but never used" << endl;
         if (removeUnused) {
           params.erase(s);
@@ -146,7 +150,7 @@ struct ConfigFile {
   }
 };
 
-static ostream& operator << (ostream& out, const ConfigFile& conf) {
+static ostream& operator<<(ostream& out, const ConfigFile& conf) {
   out << conf.params;
   return out;
 }

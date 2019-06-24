@@ -15,24 +15,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_NetworkOutput_h  
-#define _INCLUDED_NetworkOutput_h  
+#ifndef _INCLUDED_NetworkOutput_h
+#define _INCLUDED_NetworkOutput_h
 
 #include <map>
 #include "DataSequence.hpp"
 
 #define ERR(x) this->errorMap[#x] = x
 
-struct NetworkOutput
-{	
-	//data
-	map <string, real_t> errorMap;
-	map <string, real_t> normFactors;
-	Vector<string> criteria;
-	
-	//functions
-	NetworkOutput(){}
-	virtual real_t calculate_errors(const DataSequence& seq){return realMax;}
+struct NetworkOutput {
+  // data
+  map<string, real_t> errorMap;
+  map<string, real_t> normFactors;
+  Vector<string> criteria;
+
+  // functions
+  NetworkOutput() {}
+  virtual real_t calculate_errors(const DataSequence& seq) { return realMax; }
 };
 
 #endif

@@ -37,37 +37,34 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_CopyConnection_h  
-#define _INCLUDED_CopyConnection_h  
+#ifndef _INCLUDED_CopyConnection_h
+#define _INCLUDED_CopyConnection_h
 
 #include "Connection.hpp"
 
-struct CopyConnection: public Connection
-{
-	//functions
-  CopyConnection(Layer* f, Layer* t, WeightContainer *weight):
-		Connection(f->name + "_to_" + t->name, f, t)
-	{
-		assert(this->from != this->to);
-		assert(this->from->output_size() == this->to->input_size());
-		assert(this->from->output_size());
-		this->to->source = this->from;
-		weight->link_layers(this->from->name, this->to->name);
-	}
-	virtual ~CopyConnection(){}
-	void feed_forward(const vector<int>& coords)
-	{
-		range_plus_equals(this->to->inputActivations[coords], this->from->outputActivations[coords]);
-	}
-	void feed_back(const vector<int>& coords)
-	{
-		range_plus_equals(this->from->outputErrors[coords], this->to->inputErrors[coords]);
-	}
-	void print(ostream& out) const
-	{
-		Named::print(out);
-		out << " (copy)";
-	}
+struct CopyConnection : public Connection {
+  // functions
+  CopyConnection(Layer* f, Layer* t, WeightContainer* weight)
+      : Connection(f->name + "_to_" + t->name, f, t) {
+    assert(this->from != this->to);
+    assert(this->from->output_size() == this->to->input_size());
+    assert(this->from->output_size());
+    this->to->source = this->from;
+    weight->link_layers(this->from->name, this->to->name);
+  }
+  virtual ~CopyConnection() {}
+  void feed_forward(const vector<int>& coords) {
+    range_plus_equals(this->to->inputActivations[coords],
+                      this->from->outputActivations[coords]);
+  }
+  void feed_back(const vector<int>& coords) {
+    range_plus_equals(this->from->outputErrors[coords],
+                      this->to->inputErrors[coords]);
+  }
+  void print(ostream& out) const {
+    Named::print(out);
+    out << " (copy)";
+  }
 };
 
 #endif

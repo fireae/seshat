@@ -39,7 +39,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 #include "Layer.hpp"
 
-ostream& operator <<(ostream& out, const Layer& l) {
+ostream& operator<<(ostream& out, const Layer& l) {
   l.print(out);
   return out;
 }

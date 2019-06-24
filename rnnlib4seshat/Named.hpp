@@ -18,22 +18,20 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #ifndef _INCLUDED_NamedObject_h
 #define _INCLUDED_NamedObject_h
 
-#include <string>
 #include <iostream>
+#include <string>
 #include <typeinfo>
 
 using namespace std;
 
 struct Named {
   string name;
-  Named(const string & n): name(n) {}
-  virtual ~Named(){}
-  void print(ostream& out = cout) const {
-    out << "\"" << name << "\"";
-  }
+  Named(const string& n) : name(n) {}
+  virtual ~Named() {}
+  void print(ostream& out = cout) const { out << "\"" << name << "\""; }
 };
 
-static ostream& operator << (ostream& out, const Named& n) {
+static ostream& operator<<(ostream& out, const Named& n) {
   n.print(out);
   return out;
 }

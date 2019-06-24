@@ -67,8 +67,8 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <numeric>
 #include <set>
 #include <sstream>
-#include <tuple>
 #include <string>
+#include <tuple>
 #include <utility>
 #include "Log.hpp"
 //#include "cblas.h"
@@ -144,8 +144,7 @@ typedef std::vector<const real_t*>::const_reverse_iterator VPCFCRI;
 typedef std::vector<bool>::const_iterator VBCI;
 typedef std::vector<bool>::iterator VBI;
 typedef std::map<std::string, std::pair<real_t, int> >::iterator MCSPDII;
-typedef std::map<std::string, std::pair<real_t, int> >::const_iterator
-    MCSPDICI;
+typedef std::map<std::string, std::pair<real_t, int> >::const_iterator MCSPDICI;
 typedef bimap<int, std::string>::left_const_iterator BMISLCI;
 typedef bimap<int, std::string>::right_const_iterator BMISRCI;
 typedef bimap<int, std::string>::relation BMISR;
@@ -156,8 +155,7 @@ typedef std::pair<std::string, int> PSI;
 typedef std::pair<int, std::string> PIS;
 typedef std::pair<std::string, std::string> PSS;
 typedef const boost::tuple<real_t&, real_t&, real_t&, real_t&>& TDDDD;
-typedef const boost::tuple<real_t&, real_t&, real_t&, real_t&, real_t&>&
-    TDDDDD;
+typedef const boost::tuple<real_t&, real_t&, real_t&, real_t&, real_t&>& TDDDDD;
 typedef const boost::tuple<real_t&, real_t&, real_t&>& TDDD;
 typedef const boost::tuple<real_t&, real_t&, int&>& TDDI;
 typedef const boost::tuple<real_t&, real_t&, real_t&>& TDDF;
@@ -332,7 +330,7 @@ static size_t count_adjacent(const R& r) {
 template <class R1, class R2>
 std::pair<zip_iterator<boost::tuple<typename range_iterator<R1>::type,
                                     typename range_iterator<R2>::type> >,
-                 zip_iterator<boost::tuple<typename range_iterator<R1>::type,
+          zip_iterator<boost::tuple<typename range_iterator<R1>::type,
                                     typename range_iterator<R2>::type> > >
 zip(R1& r1, R2& r2) {
   size_t size = range_min_size(r1, r2);
@@ -356,11 +354,11 @@ static size_t range_min_size(const R1& a, const R2& b, const R3& c, const R4& d,
 
 template <class R1, class R2, class R3>
 static pair<zip_iterator<boost::tuple<typename range_iterator<R1>::type,
-                               typename range_iterator<R2>::type,
-                               typename range_iterator<R3>::type> >,
+                                      typename range_iterator<R2>::type,
+                                      typename range_iterator<R3>::type> >,
             zip_iterator<boost::tuple<typename range_iterator<R1>::type,
-                               typename range_iterator<R2>::type,
-                               typename range_iterator<R3>::type> > >
+                                      typename range_iterator<R2>::type,
+                                      typename range_iterator<R3>::type> > >
 zip(R1& r1, R2& r2, R3& r3) {
   size_t size = range_min_size(r1, r2, r3);
   return std::make_pair(
@@ -377,9 +375,9 @@ static pair<
         typename range_iterator<R1>::type, typename range_iterator<R2>::type,
         typename range_iterator<R3>::type, typename range_iterator<R4>::type> >,
     zip_iterator<boost::tuple<typename range_iterator<R1>::type,
-                       typename range_iterator<R2>::type,
-                       typename range_iterator<R3>::type,
-                       typename range_iterator<R4>::type> > >
+                              typename range_iterator<R2>::type,
+                              typename range_iterator<R3>::type,
+                              typename range_iterator<R4>::type> > >
 zip(R1& r1, R2& r2, R3& r3, R4& r4) {
   size_t size = range_min_size(r1, r2, r3, r4);
   return std::make_pair(
@@ -439,15 +437,17 @@ static integer_range<typename boost::range_size<R>::type> indices(const R& r) {
 }
 template <class R>
 static pair<
-    zip_iterator<boost::tuple<counting_iterator<typename range_difference<R>::type>,
-                       typename range_iterator<R>::type> >,
-    zip_iterator<boost::tuple<counting_iterator<typename range_difference<R>::type>,
-                       typename range_iterator<R>::type> > >
+    zip_iterator<
+        boost::tuple<counting_iterator<typename range_difference<R>::type>,
+                     typename range_iterator<R>::type> >,
+    zip_iterator<
+        boost::tuple<counting_iterator<typename range_difference<R>::type>,
+                     typename range_iterator<R>::type> > >
 enumerate(R& r) {
   return std::make_pair(
-      make_zip_iterator(
-          boost::make_tuple(counting_iterator<typename range_difference<R>::type>(0),
-                     boost::begin(r))),
+      make_zip_iterator(boost::make_tuple(
+          counting_iterator<typename range_difference<R>::type>(0),
+          boost::begin(r))),
       make_zip_iterator(boost::make_tuple(
           counting_iterator<typename range_difference<R>::type>(boost::size(r)),
           boost::end(r))));
@@ -681,15 +681,15 @@ static T range_indep_gauss_pdf(const R1& variables, const R2& means,
 }
 template <typename C>
 C inner_product(const real_t* a, const real_t* aEnd, const real_t* b, C c) {
-//   if (c == 0) {
-//     return
-// #ifdef FLOAT_REALS
-//         cblas_sdot
-// #else
-//         cblas_ddot
-// #endif
-//         (aEnd - a, a, 1, b, 1);
-//   }
+  //   if (c == 0) {
+  //     return
+  // #ifdef FLOAT_REALS
+  //         cblas_sdot
+  // #else
+  //         cblas_ddot
+  // #endif
+  //         (aEnd - a, a, 1, b, 1);
+  //   }
   return std::inner_product(a, aEnd, b, c);
 }
 template <typename C>
@@ -887,14 +887,16 @@ static ostream& operator<<(ostream& out, const boost::tuple<T1, T2, T3>& t) {
   return out;
 }
 template <class T1, class T2, class T3, class T4>
-static ostream& operator<<(ostream& out, const boost::tuple<T1, T2, T3, T4>& t) {
+static ostream& operator<<(ostream& out,
+                           const boost::tuple<T1, T2, T3, T4>& t) {
   //	out << t.get<0>() << " " << t.get<1>() << " " << t.get<2>() << " " <<
   // t.get<3>();
   out << get<0>(t) << " " << get<1>(t) << " " << get<2>(t) << " " << get<3>(t);
   return out;
 }
 template <class T1, class T2, class T3, class T4, class T5>
-static ostream& operator<<(ostream& out, const boost::tuple<T1, T2, T3, T4, T5>& t) {
+static ostream& operator<<(ostream& out,
+                           const boost::tuple<T1, T2, T3, T4, T5>& t) {
   //	out << t.get<0>() << " " << t.get<1>() << " " << t.get<2>() << " " <<
   // t.get<3>() << " " << t.get<4>();
   out << get<0>(t) << " " << get<1>(t) << " " << get<2>(t) << " " << get<3>(t)
@@ -1130,13 +1132,13 @@ static real_t KL_normal(real_t pMean, real_t pVar, real_t qMean, real_t qVar) {
   return 0.5 *
          (log(qVar / pVar) - 1 + ((squared(pMean - qMean) + pVar) / qVar));
 }
-// static real_t nats_to_bits(real_t nats) {
-//   static real_t F = 1.0 / Log<real_t>::safe_log(2);
-//   return F * nats;
-// }
-// static real_t bits_to_nats(real_t bits) {
-//   static real_t F = Log<real_t>::safe_log(2);
-//   return F * bits;
-// }
+  // static real_t nats_to_bits(real_t nats) {
+  //   static real_t F = 1.0 / Log<real_t>::safe_log(2);
+  //   return F * nats;
+  // }
+  // static real_t bits_to_nats(real_t bits) {
+  //   static real_t F = Log<real_t>::safe_log(2);
+  //   return F * bits;
+  // }
 
 #endif

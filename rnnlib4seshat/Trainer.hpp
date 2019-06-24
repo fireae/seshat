@@ -49,11 +49,11 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <utility>
 #include <vector>
 
-#include "Mdrnn.hpp"
-#include "Optimiser.hpp"
-#include "NetcdfDataset.hpp"
-#include "Helpers.hpp"
 #include "ConfigFile.hpp"
+#include "Helpers.hpp"
+#include "Mdrnn.hpp"
+#include "NetcdfDataset.hpp"
+#include "Optimiser.hpp"
 //#include "DatasetErrors.hpp"
 #include "Random.hpp"
 
@@ -63,7 +63,7 @@ extern bool verbose;
 extern uint64_t matrixOps;
 #endif
 
-struct Trainer: public DataExporter {
+struct Trainer : public DataExporter {
   // data
   ostream& out;
   Mdrnn* net;
@@ -80,12 +80,12 @@ struct Trainer: public DataExporter {
   real_t dataFraction;
   int seqsPerWeightUpdate;
   bool batchLearn;
-  //DataList trainFiles;
-  //DataList testFiles;
-  //DataList valFiles;
-  //DatasetErrors trainErrors;
-  //DatasetErrors testErrors;
-  //DatasetErrors valErrors;
+  // DataList trainFiles;
+  // DataList testFiles;
+  // DataList valFiles;
+  // DatasetErrors trainErrors;
+  // DatasetErrors testErrors;
+  // DatasetErrors valErrors;
   real_t inputNoiseDev;
   real_t weightDistortion;
   bool testDistortions;
@@ -112,46 +112,56 @@ struct Trainer: public DataExporter {
   map<string, real_t> mdlSeqErrors;
 
   // functions
-  Trainer(
-	  ostream& o, Mdrnn* n, ConfigFile& conf, WeightContainer *wc, DataExportHandler *deh, const string& name = "trainer"):
-    DataExporter(name, deh), out(o), net(n), optimiser(0), config(conf),
-    wts(wc->weights),
-      derivs(wc->derivatives),
-      epoch(0), criteria(net->criteria), netErrors(net->errors),
-      netNormFactors(net->normFactors), task(config.get<string>("task")),
-      dataFraction(config.get<real_t>("dataFraction", 1)),
-      seqsPerWeightUpdate(config.get<int>("seqsPerWeightUpdate", 1)),
-      batchLearn(config.get<bool>(
-          "batchLearn", (config.get<string>("optimiser", "steepest") == "rprop")
-          && (seqsPerWeightUpdate == 1))),
-      //trainFiles(
-      //    config.get_list<string>("trainFile"), task, !batchLearn,
-      //    dataFraction),
-      //testFiles(config.get_list<string>("testFile"), task, false, dataFraction),
-      //valFiles(config.get_list<string>("valFile"), task, false, dataFraction),
-      inputNoiseDev(config.get<real_t>("inputNoiseDev", 0)),
-      weightDistortion(
-          // std deviation of distortions to add to wts during training
-          config.get<real_t>("weightDistortion", 0)),
-      testDistortions(conf.get<bool>("testDistortions", false)),
-      l1(config.get<real_t>("l1", 0)),
-      l2(config.get<real_t>("l2", 0)),
-      //invTrainSeqs(trainFiles.numSequences ? 1.0/trainFiles.numSequences : 0),
+  Trainer(ostream& o, Mdrnn* n, ConfigFile& conf, WeightContainer* wc,
+          DataExportHandler* deh, const string& name = "trainer")
+      : DataExporter(name, deh),
+        out(o),
+        net(n),
+        optimiser(0),
+        config(conf),
+        wts(wc->weights),
+        derivs(wc->derivatives),
+        epoch(0),
+        criteria(net->criteria),
+        netErrors(net->errors),
+        netNormFactors(net->normFactors),
+        task(config.get<string>("task")),
+        dataFraction(config.get<real_t>("dataFraction", 1)),
+        seqsPerWeightUpdate(config.get<int>("seqsPerWeightUpdate", 1)),
+        batchLearn(config.get<bool>(
+            "batchLearn",
+            (config.get<string>("optimiser", "steepest") == "rprop") &&
+                (seqsPerWeightUpdate == 1))),
+        // trainFiles(
+        //    config.get_list<string>("trainFile"), task, !batchLearn,
+        //    dataFraction),
+        // testFiles(config.get_list<string>("testFile"), task, false,
+        // dataFraction),  valFiles(config.get_list<string>("valFile"), task,
+        // false, dataFraction),
+        inputNoiseDev(config.get<real_t>("inputNoiseDev", 0)),
+        weightDistortion(
+            // std deviation of distortions to add to wts during training
+            config.get<real_t>("weightDistortion", 0)),
+        testDistortions(conf.get<bool>("testDistortions", false)),
+        l1(config.get<real_t>("l1", 0)),
+        l2(config.get<real_t>("l2", 0)),
+        // invTrainSeqs(trainFiles.numSequences ? 1.0/trainFiles.numSequences :
+        // 0),
 
-      // MDL parameters
-      mdl(config.get<bool>("mdl", false)),
-      mdlWeight(mdl ? config.get<real_t>("mdlWeight", 1) : 1),
-      mdlInitStdDev(mdl ? config.get<real_t>("mdlInitStdDev", 0.075) : 0),
-      mdlStdDevs(mdl ? wts.size() : 0, mdlInitStdDev),
-      mdlStdDevDerivs(mdlStdDevs.size(), 0),
-      weightCosts(mdlStdDevs.size(), 0),
-      mdlSamples(mdl ? config.get<int>("mdlSamples", 1) : 0),
-      mdlSymmetricSampling(
-          mdl ? config.get<bool>("mdlSymmetricSampling", false) : false),
-      mdlPriorMean(0),
-      mdlPriorStdDev(0),
-      mdlPriorVariance(0),
-      mdlOptimiser(0) {
+        // MDL parameters
+        mdl(config.get<bool>("mdl", false)),
+        mdlWeight(mdl ? config.get<real_t>("mdlWeight", 1) : 1),
+        mdlInitStdDev(mdl ? config.get<real_t>("mdlInitStdDev", 0.075) : 0),
+        mdlStdDevs(mdl ? wts.size() : 0, mdlInitStdDev),
+        mdlStdDevDerivs(mdlStdDevs.size(), 0),
+        weightCosts(mdlStdDevs.size(), 0),
+        mdlSamples(mdl ? config.get<int>("mdlSamples", 1) : 0),
+        mdlSymmetricSampling(
+            mdl ? config.get<bool>("mdlSymmetricSampling", false) : false),
+        mdlPriorMean(0),
+        mdlPriorStdDev(0),
+        mdlPriorVariance(0),
+        mdlOptimiser(0) {
     string optType = config.get<string>("optimiser", "steepest");
     string optName = "weight_optimiser";
     real_t learnRate = config.get<real_t>("learnRate", 1e-4);
@@ -159,40 +169,34 @@ struct Trainer: public DataExporter {
     if (optType == "rprop") {
       optimiser = new Rprop(optName, out, wts, derivs, wc, deh);
     } else {
-      optimiser = new SteepestDescent(
-				      optName, out, wts, derivs, wc, deh, learnRate, momentum);
+      optimiser = new SteepestDescent(optName, out, wts, derivs, wc, deh,
+                                      learnRate, momentum);
     }
     if (mdl) {
       string mdlOptType = config.get<string>("mdlOptimiser", optType);
       string mdlOptName = "mdl_dev_optimiser";
       if (mdlOptType == "rprop") {
-        mdlOptimiser = new Rprop(mdlOptName, out, mdlStdDevs, mdlStdDevDerivs, wc, deh);
+        mdlOptimiser =
+            new Rprop(mdlOptName, out, mdlStdDevs, mdlStdDevDerivs, wc, deh);
       } else {
         mdlOptimiser = new SteepestDescent(
-	   mdlOptName, out, mdlStdDevs, mdlStdDevDerivs, wc, deh, 
+            mdlOptName, out, mdlStdDevs, mdlStdDevDerivs, wc, deh,
             config.get<real_t>("mdlLearnRate", learnRate),
             config.get<real_t>("mdlMomentum", momentum));
       }
       SAVE(mdlPriorMean);
       SAVE(mdlPriorVariance);
       wc->save_by_conns(mdlStdDevs, "_mdl_devs");
-      wc->save_by_conns(
-          weightCosts, "_mdl_weight_costs");
+      wc->save_by_conns(weightCosts, "_mdl_weight_costs");
     }
     SAVE(epoch);
   }
 
-  real_t mdl_mean(int i) {
-    return wts[i];
-  }
+  real_t mdl_mean(int i) { return wts[i]; }
 
-  real_t mdl_std_dev(int i) {
-    return abs(mdlStdDevs[i]);
-  }
+  real_t mdl_std_dev(int i) { return abs(mdlStdDevs[i]); }
 
-  real_t mdl_variance(int i) {
-    return squared(mdlStdDevs[i]);
-  }
+  real_t mdl_variance(int i) { return squared(mdlStdDevs[i]); }
 
   void mdl_calculate_prior_params() {
     real_t W = wts.size();
@@ -209,8 +213,8 @@ struct Trainer: public DataExporter {
     mdl_calculate_prior_params();
     real_t weightNats = 0;
     FOR(i, wts.size()) {
-      weightNats += KL_normal(
-          mdl_mean(i), mdl_variance(i), mdlPriorMean, mdlPriorVariance);
+      weightNats += KL_normal(mdl_mean(i), mdl_variance(i), mdlPriorMean,
+                              mdlPriorVariance);
     }
     return weightNats * mdlWeight;
   }
@@ -222,14 +226,14 @@ struct Trainer: public DataExporter {
       real_t mean = mdl_mean(i);
       derivs[i] += (scaleFactor * (mean - mdlPriorMean)) / mdlPriorVariance;
       mdlStdDevDerivs[i] +=
-          scaleFactor * ((stdDev/mdlPriorVariance) - (1/stdDev));
+          scaleFactor * ((stdDev / mdlPriorVariance) - (1 / stdDev));
     }
   }
 
   void mdl_sample_weights(int sampleNum) {
-    if (mdlSymmetricSampling && (sampleNum&1)) {
+    if (mdlSymmetricSampling && (sampleNum & 1)) {
       LOOP(int i, indices(wts)) {
-        distortedWeights[i] = (2*wts[i]) - distortedWeights[i];
+        distortedWeights[i] = (2 * wts[i]) - distortedWeights[i];
       }
       distortedWeights.swap(wts);
     } else {
@@ -242,9 +246,7 @@ struct Trainer: public DataExporter {
 
   real_t mdl_ml_error() {
     real_t error = 0;
-    LOOP(prob_t err, mdlMlErrors) {
-      error -= err.log();
-    }
+    LOOP(prob_t err, mdlMlErrors) { error -= err.log(); }
     error /= mdlMlErrors.size();
     mdlSeqErrors /= mdlSamples;
     netErrors[criteria.front()] = error;
@@ -253,8 +255,8 @@ struct Trainer: public DataExporter {
   }
 
   real_t weight_cost(int i) {
-    return KL_normal(
-        mdl_mean(i), mdl_variance(i), mdlPriorMean, mdlPriorVariance);
+    return KL_normal(mdl_mean(i), mdl_variance(i), mdlPriorMean,
+                     mdlPriorVariance);
   }
 
   void mdl_print_stats() {
@@ -269,9 +271,7 @@ struct Trainer: public DataExporter {
     PRINT(mdlPriorVariance, out);
 
     // store weight costs
-    LOOP(int i, indices(wts)) {
-      weightCosts[i] = weight_cost(i);
-    }
+    LOOP(int i, indices(wts)) { weightCosts[i] = weight_cost(i); }
     PRINT(minmax(weightCosts), out);
     PRINT(mean(weightCosts), out);
     PRINT(std_dev(weightCosts), out);
@@ -293,7 +293,7 @@ struct Trainer: public DataExporter {
       error = mdl_ml_error();
     } else {
       seq = apply_distortions(seq);
-      error =   net->calculate_errors(*seq);
+      error = net->calculate_errors(*seq);
       revert_distortions();
     }
     return error;
@@ -328,9 +328,9 @@ struct Trainer: public DataExporter {
           real_t curvature = squared(derivs[i]);
           real_t stdDev = mdl_std_dev(i);
           if ((mdlSamples == 1) && (seqsPerWeightUpdate == 1)) {
-            mdlStdDevDerivs[i] += (curvature*stdDev);
+            mdlStdDevDerivs[i] += (curvature * stdDev);
           } else {
-            mdlStdDevDerivs[i] += (curvature*stdDev) / mdlSamples;
+            mdlStdDevDerivs[i] += (curvature * stdDev) / mdlSamples;
             mdlSeqDerivs[i] += derivs[i];
           }
         }
@@ -344,7 +344,7 @@ struct Trainer: public DataExporter {
       error = mdl_ml_error();
     } else {
       seq = apply_distortions(seq);
-      error =   net->train(*seq);
+      error = net->train(*seq);
       revert_distortions();
     }
     return error;
@@ -355,18 +355,14 @@ struct Trainer: public DataExporter {
       mdl_differentiate(scaleFactor);
     } else {
       if (l1) {
-        FOR(i, derivs.size()) {
-          derivs[i] += scaleFactor * l1 * sign(wts[i]);
-        }
-        //real_t l1Error = nats_to_bits(l1 * abs_sum(wts));
-        //trainErrors.add_error("l1ErrorBits", l1Error);
+        FOR(i, derivs.size()) { derivs[i] += scaleFactor * l1 * sign(wts[i]); }
+        // real_t l1Error = nats_to_bits(l1 * abs_sum(wts));
+        // trainErrors.add_error("l1ErrorBits", l1Error);
       }
       if (l2) {
-        FOR(i, derivs.size()) {
-          derivs[i] += scaleFactor * l2 * wts[i];
-        }
-        //real_t l2Error = nats_to_bits(0.5 * l2 * inner_product(wts, wts));
-        //trainErrors.add_error("l2ErrorBits", l2Error);
+        FOR(i, derivs.size()) { derivs[i] += scaleFactor * l2 * wts[i]; }
+        // real_t l2Error = nats_to_bits(0.5 * l2 * inner_product(wts, wts));
+        // trainErrors.add_error("l2ErrorBits", l2Error);
       }
     }
   }
@@ -391,203 +387,205 @@ struct Trainer: public DataExporter {
     }
   }*/
 
-//   void train(const string& savename) {
-//     //check(trainFiles.size(), "no training files loaded");
-//     int totalEpochs = config.get<int>("totalEpochs", -1);
-//     int maxTestsNoBest = config.get<int>("maxTestsNoBest", 20);
-//     PRINT(epoch, out);
-//     if (totalEpochs >= 0) {
-//       PRINT(totalEpochs, out);
-//     }
-//     if (savename != "") {
-//       PRINT(savename, out);
-//     }
-//     PRINT(batchLearn, out);
-//     PRINT(seqsPerWeightUpdate, out);
-//     PRINT(maxTestsNoBest, out);
-//     out << endl;
-//     print_datasets();
-//     print_distortions();
-//     prt_line(out);
-//     out << *optimiser;
-//     if (mdl) {
-//       if (!in(criteria, "weightBits")) {
-//         criteria += "weightBits";
-//       }
-//       if (!in(criteria, "totalBits")) {
-//         criteria += "totalBits";
-//       }
-//       prt_line(out);
-//       if (mdlOptimiser) {
-//         out << *mdlOptimiser;
-//       }
-//     }
-//     prt_line(out);
-//     out << endl;
+  //   void train(const string& savename) {
+  //     //check(trainFiles.size(), "no training files loaded");
+  //     int totalEpochs = config.get<int>("totalEpochs", -1);
+  //     int maxTestsNoBest = config.get<int>("maxTestsNoBest", 20);
+  //     PRINT(epoch, out);
+  //     if (totalEpochs >= 0) {
+  //       PRINT(totalEpochs, out);
+  //     }
+  //     if (savename != "") {
+  //       PRINT(savename, out);
+  //     }
+  //     PRINT(batchLearn, out);
+  //     PRINT(seqsPerWeightUpdate, out);
+  //     PRINT(maxTestsNoBest, out);
+  //     out << endl;
+  //     print_datasets();
+  //     print_distortions();
+  //     prt_line(out);
+  //     out << *optimiser;
+  //     if (mdl) {
+  //       if (!in(criteria, "weightBits")) {
+  //         criteria += "weightBits";
+  //       }
+  //       if (!in(criteria, "totalBits")) {
+  //         criteria += "totalBits";
+  //       }
+  //       prt_line(out);
+  //       if (mdlOptimiser) {
+  //         out << *mdlOptimiser;
+  //       }
+  //     }
+  //     prt_line(out);
+  //     out << endl;
 
-//     // init filenames
-//     string bestSaveRoot = savename + ".best";
-//     string lastSaveFile = savename + ".last.save";
-//     if (savename != "") {
-//       out << "autosave filename " << lastSaveFile << endl;
-//       out << "best save filename root " << bestSaveRoot << endl << endl;
-//     }
-//     config.warn_unused(out);
+  //     // init filenames
+  //     string bestSaveRoot = savename + ".best";
+  //     string lastSaveFile = savename + ".last.save";
+  //     if (savename != "") {
+  //       out << "autosave filename " << lastSaveFile << endl;
+  //       out << "best save filename root " << bestSaveRoot << endl << endl;
+  //     }
+  //     config.warn_unused(out);
 
-//     // init LOOP variables
-// #ifndef OP_TRACKING
-//     int numWeights = wts.size();
-// #endif
-//     map<string, pair<int, DatasetErrors> > bestTestErrors;
-//     map<string, pair<int, DatasetErrors> > bestValErrors;
-//     map<string, pair<int, DatasetErrors> > bestTrainErrors;
-//     int testsSinceBest = 0;
+  //     // init LOOP variables
+  // #ifndef OP_TRACKING
+  //     int numWeights = wts.size();
+  // #endif
+  //     map<string, pair<int, DatasetErrors> > bestTestErrors;
+  //     map<string, pair<int, DatasetErrors> > bestValErrors;
+  //     map<string, pair<int, DatasetErrors> > bestTrainErrors;
+  //     int testsSinceBest = 0;
 
-//     // LOOP through training data until done
-//     out << "training..." << endl;
-//     boost::timer t;
-//     int initEpoch = epoch;
-//     int seqsSinceWeightUpdate = 0;
-//     bool stoppingCriteriaReached = false;
-//     while (!stoppingCriteriaReached &&
-//            (epoch < totalEpochs || totalEpochs < 0)) {
-//       boost::timer epochT;
-//       trainErrors.clear();
-// #ifdef OP_TRACKING
-//       matrixOps = 0;
-// #endif
-//       // print MDL stats
-//       if (mdl) {
-//         out << endl << "MDL stats:" << endl;
-//         mdl_print_stats();
-//       }
+  //     // LOOP through training data until done
+  //     out << "training..." << endl;
+  //     boost::timer t;
+  //     int initEpoch = epoch;
+  //     int seqsSinceWeightUpdate = 0;
+  //     bool stoppingCriteriaReached = false;
+  //     while (!stoppingCriteriaReached &&
+  //            (epoch < totalEpochs || totalEpochs < 0)) {
+  //       boost::timer epochT;
+  //       trainErrors.clear();
+  // #ifdef OP_TRACKING
+  //       matrixOps = 0;
+  // #endif
+  //       // print MDL stats
+  //       if (mdl) {
+  //         out << endl << "MDL stats:" << endl;
+  //         mdl_print_stats();
+  //       }
 
-//       // run through one epoch, collecting errors and updating weights
-//       // for (const DataSequence* seq = trainFiles.start(); seq;
-//       //      seq = trainFiles.next_sequence()) {
-//       //   if (verbose) {
-//       //     out << "data sequence:" << endl;
-//       //     out << "file = " << trainFiles.dataset->filename << endl;
-//       //     out << "index = " << trainFiles.seqIndex << endl;
-//       //     out << *seq;
-//       //   }
-//       //   differentiate(seq);
-//       //   if (!(batchLearn) && (++seqsSinceWeightUpdate >= seqsPerWeightUpdate)) {
-//       //     regularise(invTrainSeqs * seqsSinceWeightUpdate * mdlWeight);
-//       //     update_weights();
-//       //     seqsSinceWeightUpdate = 0;
-//       //   }
-//       //   trainErrors.add_seq_errors(netErrors, netNormFactors);
-//       //   if (verbose) {
-//       //     net->print_output_shape(out);
-//       //     out << "errors:" << endl;
-//       //     out << netErrors;
-//       //     if (mdl) {
-//       //       prt_line(out);
-//       //       mdl_print_stats();
-//       //       out << "bitsPerWeight = "
-//       //           << nats_to_bits(mdl_evaluate()) / wts.size() << endl;
-//       //       prt_line(out);
-//       //     }
-//       //     out << endl;
-//       //   }
-//       // }
-//       if (batchLearn) {
-//         regularise(mdlWeight);
-//         update_weights();
-//       }
-//       calculate_compression_errors(trainErrors);
-//       trainErrors.normalise();
+  //       // run through one epoch, collecting errors and updating weights
+  //       // for (const DataSequence* seq = trainFiles.start(); seq;
+  //       //      seq = trainFiles.next_sequence()) {
+  //       //   if (verbose) {
+  //       //     out << "data sequence:" << endl;
+  //       //     out << "file = " << trainFiles.dataset->filename << endl;
+  //       //     out << "index = " << trainFiles.seqIndex << endl;
+  //       //     out << *seq;
+  //       //   }
+  //       //   differentiate(seq);
+  //       //   if (!(batchLearn) && (++seqsSinceWeightUpdate >=
+  //       seqsPerWeightUpdate)) {
+  //       //     regularise(invTrainSeqs * seqsSinceWeightUpdate * mdlWeight);
+  //       //     update_weights();
+  //       //     seqsSinceWeightUpdate = 0;
+  //       //   }
+  //       //   trainErrors.add_seq_errors(netErrors, netNormFactors);
+  //       //   if (verbose) {
+  //       //     net->print_output_shape(out);
+  //       //     out << "errors:" << endl;
+  //       //     out << netErrors;
+  //       //     if (mdl) {
+  //       //       prt_line(out);
+  //       //       mdl_print_stats();
+  //       //       out << "bitsPerWeight = "
+  //       //           << nats_to_bits(mdl_evaluate()) / wts.size() << endl;
+  //       //       prt_line(out);
+  //       //     }
+  //       //     out << endl;
+  //       //   }
+  //       // }
+  //       if (batchLearn) {
+  //         regularise(mdlWeight);
+  //         update_weights();
+  //       }
+  //       calculate_compression_errors(trainErrors);
+  //       trainErrors.normalise();
 
-//       // print out epoch data
-//       real_t epochSeconds = epochT.elapsed();
-//       out << endl << "epoch " << epoch << " took ";
-//       print_time(epochSeconds, out);
-//       //real_t itsPerSec = (real_t)trainFiles.numTimesteps / epochSeconds;
-//       out << " (";
-//       //print_time(epochSeconds / (real_t)trainFiles.numSequences, out, true);
-//       out << "/seq, " << itsPerSec << " its/sec, ";
-// #ifdef OP_TRACKING
-//       real_t mWtOpsPerSec = matrixOps / (epochSeconds * 1e6);
-//       out << mWtOpsPerSec << " MwtOps/sec)" << endl;
-// #else
-//       real_t mWtItsPerSec = (itsPerSec * numWeights) / 1e6;
-//       out << mWtItsPerSec << " MwtIts/sec)" << endl;
-// #endif
-//       // print running train errrors
-//       prt_line(out);
-//       out << "train errors (running):" << endl;
-//       out << trainErrors;
-//       prt_line(out);
+  //       // print out epoch data
+  //       real_t epochSeconds = epochT.elapsed();
+  //       out << endl << "epoch " << epoch << " took ";
+  //       print_time(epochSeconds, out);
+  //       //real_t itsPerSec = (real_t)trainFiles.numTimesteps / epochSeconds;
+  //       out << " (";
+  //       //print_time(epochSeconds / (real_t)trainFiles.numSequences, out,
+  //       true); out << "/seq, " << itsPerSec << " its/sec, ";
+  // #ifdef OP_TRACKING
+  //       real_t mWtOpsPerSec = matrixOps / (epochSeconds * 1e6);
+  //       out << mWtOpsPerSec << " MwtOps/sec)" << endl;
+  // #else
+  //       real_t mWtItsPerSec = (itsPerSec * numWeights) / 1e6;
+  //       out << mWtItsPerSec << " MwtIts/sec)" << endl;
+  // #endif
+  //       // print running train errrors
+  //       prt_line(out);
+  //       out << "train errors (running):" << endl;
+  //       out << trainErrors;
+  //       prt_line(out);
 
-//       // calculate error test, if required
-//       if (valFiles.size()) {
-//         out << "validation errors:" << endl;
-//         out << calculate_errors(valFiles, valErrors);
-//         prt_line(out);
-//       }
-//       if (testFiles.size()) {
-//         out << "test errors:" << endl;
-//         out << calculate_errors(testFiles, testErrors);
-//         prt_line(out);
-//       }
+  //       // calculate error test, if required
+  //       if (valFiles.size()) {
+  //         out << "validation errors:" << endl;
+  //         out << calculate_errors(valFiles, valErrors);
+  //         prt_line(out);
+  //       }
+  //       if (testFiles.size()) {
+  //         out << "test errors:" << endl;
+  //         out << calculate_errors(testFiles, testErrors);
+  //         prt_line(out);
+  //       }
 
-//       // update epoch BEFORE saves (so training continues one epoch on)
-//       ++epoch;
-//       if (savename != "") {
-//         save_data(lastSaveFile, config);
-//       }
-//       DatasetErrors currentErrors = valFiles.size() ? valErrors : trainErrors;
-//       map<string, pair<int, DatasetErrors> >& bestErrors =
-//           valFiles.size() ? bestValErrors : bestTrainErrors;
-//       if (check_for_best(currentErrors, bestErrors, epoch)) {
-//         LOOP(const PSPIDE& p, bestErrors) {
-//           if (p.second.first == epoch) {
-//             const string& s = p.first;
-//             out << "best network (" << s << ")" << endl;
-//             if (valFiles.size()) {
-//               bestTrainErrors[s] = make_pair(epoch, trainErrors);
-//             }
-//             if (testFiles.size()) {
-//               bestTestErrors[s] = make_pair(epoch, testErrors);
-//             }
-//             if (savename != "") {
-//               string saveFile = bestSaveRoot + "_" + s + ".save";
-//               save_data(saveFile, config);
-//             }
-//             testsSinceBest = 0;
-//           }
-//         }
-//       } else if (maxTestsNoBest > 0 && (++testsSinceBest > maxTestsNoBest)) {
-//         // check if training is finished
-//         out << testsSinceBest << " error tests without best, ending training"
-//             << endl;
-//         stoppingCriteriaReached = true;
-//       }
-//     }
+  //       // update epoch BEFORE saves (so training continues one epoch on)
+  //       ++epoch;
+  //       if (savename != "") {
+  //         save_data(lastSaveFile, config);
+  //       }
+  //       DatasetErrors currentErrors = valFiles.size() ? valErrors :
+  //       trainErrors; map<string, pair<int, DatasetErrors> >& bestErrors =
+  //           valFiles.size() ? bestValErrors : bestTrainErrors;
+  //       if (check_for_best(currentErrors, bestErrors, epoch)) {
+  //         LOOP(const PSPIDE& p, bestErrors) {
+  //           if (p.second.first == epoch) {
+  //             const string& s = p.first;
+  //             out << "best network (" << s << ")" << endl;
+  //             if (valFiles.size()) {
+  //               bestTrainErrors[s] = make_pair(epoch, trainErrors);
+  //             }
+  //             if (testFiles.size()) {
+  //               bestTestErrors[s] = make_pair(epoch, testErrors);
+  //             }
+  //             if (savename != "") {
+  //               string saveFile = bestSaveRoot + "_" + s + ".save";
+  //               save_data(saveFile, config);
+  //             }
+  //             testsSinceBest = 0;
+  //           }
+  //         }
+  //       } else if (maxTestsNoBest > 0 && (++testsSinceBest > maxTestsNoBest))
+  //       {
+  //         // check if training is finished
+  //         out << testsSinceBest << " error tests without best, ending
+  //         training"
+  //             << endl;
+  //         stoppingCriteriaReached = true;
+  //       }
+  //     }
 
-//     // autosave, if required
-//     if (savename != "") {
-//       save_data(lastSaveFile, config);
-//     }
+  //     // autosave, if required
+  //     if (savename != "") {
+  //       save_data(lastSaveFile, config);
+  //     }
 
-//     // print out overall stats
-//     real_t seconds = t.elapsed();
-//     out << endl << "training finished, " << epoch << " epochs in total" << endl;
-//     out << epoch - initEpoch << " epochs in ";
-//     print_time(seconds, out);
-//     out << "(this session)" << endl << endl;
-//     print_best_errors("train", bestTrainErrors);
-//     out << endl;
-//     if (valFiles.size()) {
-//       print_best_errors("validation", bestValErrors);
-//       out << endl;
-//     }
-//     if (testFiles.size()) {
-//       print_best_errors("test", bestTestErrors);
-//       out << endl;
-//     }
-//   }
+  //     // print out overall stats
+  //     real_t seconds = t.elapsed();
+  //     out << endl << "training finished, " << epoch << " epochs in total" <<
+  //     endl; out << epoch - initEpoch << " epochs in "; print_time(seconds,
+  //     out); out << "(this session)" << endl << endl;
+  //     print_best_errors("train", bestTrainErrors);
+  //     out << endl;
+  //     if (valFiles.size()) {
+  //       print_best_errors("validation", bestValErrors);
+  //       out << endl;
+  //     }
+  //     if (testFiles.size()) {
+  //       print_best_errors("test", bestTestErrors);
+  //       out << endl;
+  //     }
+  //   }
 
   bool print_distortions() {
     bool distortions = false;
@@ -598,7 +596,8 @@ struct Trainer: public DataExporter {
     }
     if (weightDistortion) {
       out << "adding  noise to weights every sequence, std dev "
-          << weightDistortion << endl << endl;
+          << weightDistortion << endl
+          << endl;
       distortions = true;
     }
     if (mdl) {
@@ -643,7 +642,7 @@ struct Trainer: public DataExporter {
   DataSequence* add_input_noise(const DataSequence* seq) {
     static DataSequence noisySeq;
     noisySeq = *seq;
-    LOOP(real_t& f, noisySeq.inputs.data) {
+    LOOP(real_t & f, noisySeq.inputs.data) {
       f += Random::normal(inputNoiseDev);
     }
     return &noisySeq;
@@ -669,7 +668,7 @@ struct Trainer: public DataExporter {
     if (fout.is_open()) {
       out << "saving to " << filename << endl;
       config.set_val<bool>("loadWeights", true);
-      //fout << config << DataExportHandler::instance();
+      // fout << config << DataExportHandler::instance();
     } else {
       out << "WARNING trainer unable to save to file " << filename << endl;
     }
@@ -681,9 +680,7 @@ struct Trainer: public DataExporter {
       if (mdlOptimiser) {
         mdlOptimiser->update_weights();
       }
-      LOOP(real_t& d, mdlStdDevs) {
-        d = abs(d);
-      }
+      LOOP(real_t & d, mdlStdDevs) { d = abs(d); }
     } else {
       optimiser->update_weights();
     }

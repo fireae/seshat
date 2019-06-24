@@ -37,28 +37,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_InputLayer_h  
-#define _INCLUDED_InputLayer_h  
+#ifndef _INCLUDED_InputLayer_h
+#define _INCLUDED_InputLayer_h
 
 #include "Layer.hpp"
 
-struct InputLayer: public Layer
-{
-	//functions
-  InputLayer(const string& name, size_t numSeqDims, size_t size, const vector<string>& inputLabels, WeightContainer *weight, DataExportHandler *deh):
-    Layer(name, numSeqDims, 0, size, weight, deh)
-	{
-	  //const vector<string>* labs = inputLabels.empty() ? 0 : &inputLabels;
-		//display(this->outputActivations, "activations", labs);
-		//display(this->outputErrors, "errors", labs);
-	}
-	~InputLayer(){}
-	template<typename T> void copy_inputs(const SeqBuffer<T>& inputs)
-	{
-		assert(inputs.depth == this->output_size());
-		this->outputActivations = inputs;
- 		this->outputErrors.reshape(this->outputActivations, 0);
-	}
+struct InputLayer : public Layer {
+  // functions
+  InputLayer(const string& name, size_t numSeqDims, size_t size,
+             const vector<string>& inputLabels, WeightContainer* weight,
+             DataExportHandler* deh)
+      : Layer(name, numSeqDims, 0, size, weight, deh) {
+    // const vector<string>* labs = inputLabels.empty() ? 0 : &inputLabels;
+    // display(this->outputActivations, "activations", labs);
+    // display(this->outputErrors, "errors", labs);
+  }
+  ~InputLayer() {}
+  template <typename T>
+  void copy_inputs(const SeqBuffer<T>& inputs) {
+    assert(inputs.depth == this->output_size());
+    this->outputActivations = inputs;
+    this->outputErrors.reshape(this->outputActivations, 0);
+  }
 };
 
 #endif

@@ -59,6 +59,20 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include "CollapseLayer.hpp"
 #include "CopyConnection.hpp"
 
+// #include "ActivationFunctions.hpp"
+// #include "BiasLayer.hpp"
+// #include "BlockLayer.hpp"
+// #include "CollapseLayer.hpp"
+// #include "CopyConnection.hpp"
+// #include "FullConnection.hpp"
+// #include "GatherLayer.hpp"
+// #include "IdentityLayer.hpp"
+// #include "InputLayer.hpp"
+// #include "LstmLayer.hpp"
+// #include "NetcdfDataset.hpp"
+// #include "NetworkOutput.hpp"
+// #include "NeuronLayer.hpp"
+
 typedef pair<const Layer*, Connection*> PLC;
 typedef multimap<const Layer*, Connection*>::iterator CONN_IT;
 typedef multimap<const Layer*, Connection*>::const_iterator CONST_CONN_IT;
@@ -80,23 +94,27 @@ struct Mdrnn {
   vector<bool> symmetry;
   vector<size_t> inputBlock;
   Layer* inputBlockLayer;
-  BiasLayer *bias;
+  BiasLayer* bias;
   vector<Layer*> recurrentLayers;
   map<string, real_t> errors;
   map<string, real_t> normFactors;
   Vector<string> criteria;
-  WeightContainer *wc;
-  DataExportHandler *DEH;
+  WeightContainer* wc;
+  DataExportHandler* DEH;
 
   // functions
-  Mdrnn(ostream& o, ConfigFile& conf, const DataHeader& data, WeightContainer *weight, DataExportHandler *deh):
-    out(o), wc(weight), DEH(deh)  {
-
-    inputLayer = new InputLayer("input", data.numDims, data.inputSize, data.inputLabels, wc, DEH);
+  Mdrnn(ostream& o, ConfigFile& conf, const DataHeader& data,
+        WeightContainer* weight, DataExportHandler* deh)
+      : out(o), wc(weight), DEH(deh) {
+    inputLayer = new InputLayer("input", data.numDims, data.inputSize,
+                                data.inputLabels, wc, DEH);
     bidirectional = conf.get_list<bool>("bidirectional", true, data.numDims);
     symmetry = conf.get_list<bool>("symmetry", false, data.numDims);
     inputBlock = conf.get_list<size_t>("inputBlock", 0, data.numDims);
-    inputBlockLayer = in(inputBlock, 0) ? 0 : add_layer(new BlockLayer(inputLayer, inputBlock, wc, deh), false);
+    inputBlockLayer =
+        in(inputBlock, 0)
+            ? 0
+            : add_layer(new BlockLayer(inputLayer, inputBlock, wc, deh), false);
     bias = new BiasLayer(weight, deh);
   }
 
@@ -108,14 +126,11 @@ struct Mdrnn {
     delete_map(connections);
   }
 
-  size_t num_seq_dims() const {
-    return bidirectional.size();
-  }
+  size_t num_seq_dims() const { return bidirectional.size(); }
 
   Layer* get_input_layer() const {
-    return inputBlockLayer ?
-        reinterpret_cast<Layer*>(inputBlockLayer) :
-        reinterpret_cast<Layer*>(inputLayer);
+    return inputBlockLayer ? reinterpret_cast<Layer*>(inputBlockLayer)
+                           : reinterpret_cast<Layer*>(inputLayer);
   }
 
   Connection* add_connection(Connection* conn) {
@@ -146,7 +161,7 @@ struct Mdrnn {
   Layer* collapse_layer(
       Layer* src, Layer* dest,
       const vector<bool>& activeDims = empty_list_of<bool>()) {
-    Layer* layer = add_layer(new CollapseLayer (src, dest, wc, DEH, activeDims));
+    Layer* layer = add_layer(new CollapseLayer(src, dest, wc, DEH, activeDims));
     add_connection(new CopyConnection(layer, dest, wc));
     return layer;
   }
@@ -171,8 +186,8 @@ struct Mdrnn {
 
   Layer* add_output_layer(NetworkOutput* output, bool addBias = true) {
     Layer* layer = dynamic_cast<Layer*>(output);
-    check(layer, "unable to cast network output " + string(
-        typeid(*output).name()) + " to layer");
+    check(layer, "unable to cast network output " +
+                     string(typeid(*output).name()) + " to layer");
     outputLayers += layer;
     if (addBias) {
       add_bias(layer);
@@ -194,10 +209,9 @@ struct Mdrnn {
     return layer;
   }
 
-  Layer* add_layer(
-      const string& type, const string& name, int size,
-      const vector<int>& directions, bool addBias = false,
-      bool recurrent = false) {
+  Layer* add_layer(const string& type, const string& name, int size,
+                   const vector<int>& directions, bool addBias = false,
+                   bool recurrent = false) {
     Layer* layer;
     if (type == "tanh") {
       layer = new NeuronLayer<Tanh>(name, directions, size, wc, DEH);
@@ -208,50 +222,51 @@ struct Mdrnn {
     } else if (type == "identity") {
       layer = new IdentityLayer(name, directions, size, wc, DEH);
     } else if (type == "lstm") {
-      layer = new LstmLayer<Tanh, Tanh, Logistic>(name, directions, size, wc, DEH, 1);
+      layer = new LstmLayer<Tanh, Tanh, Logistic>(name, directions, size, wc,
+                                                  DEH, 1);
     } else if (type == "linear_lstm") {
-      layer = new LstmLayer<Tanh, Identity, Logistic>(
-						      name, directions, size, wc, DEH, 1);
+      layer = new LstmLayer<Tanh, Identity, Logistic>(name, directions, size,
+                                                      wc, DEH, 1);
     } else if (type == "softsign_lstm") {
-      layer = new LstmLayer<Softsign, Softsign, Logistic>(
-							  name, directions, size, wc, DEH, 1);
+      layer = new LstmLayer<Softsign, Softsign, Logistic>(name, directions,
+                                                          size, wc, DEH, 1);
     } else {
       check(false, "layer type " + type + " unknown");
     }
     return add_layer(layer, addBias, recurrent);
   }
 
-  Layer* add_hidden_layers_to_level(
-      const string& type, int size, bool recurrent, const string& name,
-      int dim, int levelNum, vector<int> directions, bool addBias = true) {
+  Layer* add_hidden_layers_to_level(const string& type, int size,
+                                    bool recurrent, const string& name, int dim,
+                                    int levelNum, vector<int> directions,
+                                    bool addBias = true) {
     if (dim == num_seq_dims()) {
       string fullName = name + "_" + str(hiddenLevels.at(levelNum).size());
-      Layer* layer = add_layer(
-          type, fullName, size, directions, addBias, recurrent);
+      Layer* layer =
+          add_layer(type, fullName, size, directions, addBias, recurrent);
       hiddenLevels.at(levelNum).push_back(layer);
       return layer;
     } else {
       if (bidirectional[dim]) {
         directions[dim] = -1;
-        add_hidden_layers_to_level(
-            type, size, recurrent, name, dim + 1, levelNum, directions,
-            addBias);
+        add_hidden_layers_to_level(type, size, recurrent, name, dim + 1,
+                                   levelNum, directions, addBias);
       }
       directions[dim] = 1;
-      return add_hidden_layers_to_level(
-          type, size, recurrent, name, dim + 1, levelNum, directions, addBias);
+      return add_hidden_layers_to_level(type, size, recurrent, name, dim + 1,
+                                        levelNum, directions, addBias);
     }
   }
 
   virtual void build() {
-    LOOP(vector<Layer*>& v, hiddenLevels) {
-      LOOP(Layer* dest, v) {
+    LOOP(vector<Layer*> & v, hiddenLevels) {
+      LOOP(Layer * dest, v) {
         if (is_mirror(dest)) {
           vector<int> sourceDirs(dest->directions.size());
           LOOP(TIBI t, zip(sourceDirs, symmetry, dest->directions)) {
             t.get<0>() = (((t.get<1>() > 0) || t.get<2>()) ? 1 : -1);
           }
-          LOOP(Layer* src, v) {
+          LOOP(Layer * src, v) {
             if (src->directions == sourceDirs) {
               copy_connections(src, dest, true);
               break;
@@ -261,19 +276,15 @@ struct Mdrnn {
       }
     }
     recurrentLayers.clear();
-    LOOP(Layer* l, hiddenLayers) {
+    LOOP(Layer * l, hiddenLayers) {
       l->build();
       if (is_recurrent(l)) {
         recurrentLayers += l;
       }
     }
     criteria.clear();
-    LOOP(Layer* l, outputLayers) {
-      l->build();
-    }
-    LOOP(NetworkOutput* l, outputs) {
-      criteria.extend(l->criteria);
-    }
+    LOOP(Layer * l, outputLayers) { l->build(); }
+    LOOP(NetworkOutput * l, outputs) { criteria.extend(l->criteria); }
   }
 
   int copy_connections(Layer* src, Layer* dest, bool mirror = false) {
@@ -288,16 +299,15 @@ struct Mdrnn {
           }
         }
       }
-      add_connection(new FullConnection(oldConn->from == oldConn->to ? dest :
-                                        oldConn->from, dest, wc, delay, oldConn));
+      add_connection(new FullConnection(
+          oldConn->from == oldConn->to ? dest : oldConn->from, dest, wc, delay,
+          oldConn));
       ++numCopied;
     }
     return numCopied;
   }
 
-  FullConnection* add_bias(Layer* layer) {
-    return connect_layers(bias, layer);
-  }
+  FullConnection* add_bias(Layer* layer) { return connect_layers(bias, layer); }
 
   void connect_to_hidden_level(Layer* from, int levelNum) {
     LOOP(int i, indices(hiddenLevels.at(levelNum))) {
@@ -315,9 +325,8 @@ struct Mdrnn {
     }
   }
 
-  int add_hidden_level(
-      const string& type, int size, bool recurrent = true,
-      const string& name = "hidden", bool addBias = true) {
+  int add_hidden_level(const string& type, int size, bool recurrent = true,
+                       const string& name = "hidden", bool addBias = true) {
     int levelNum = hiddenLevels.size();
     hiddenLevels.resize(levelNum + 1);
     add_hidden_layers_to_level(
@@ -330,9 +339,7 @@ struct Mdrnn {
     layer->start_sequence();
     pair<CONN_IT, CONN_IT> connRange = connections.equal_range(layer);
     for (SeqIterator it = layer->input_seq_begin(); !it.end; ++it) {
-      LOOP(PLC c, connRange) {
-        c.second->feed_forward(*it);
-      }
+      LOOP(PLC c, connRange) { c.second->feed_forward(*it); }
       layer->feed_forward(*it);
     }
   }
@@ -341,27 +348,19 @@ struct Mdrnn {
     pair<CONN_IT, CONN_IT> connRange = connections.equal_range(layer);
     for (SeqIterator it = layer->input_seq_rbegin(); !it.end; ++it) {
       layer->feed_back(*it);
-      LOOP(PLC c, connRange) {
-        c.second->feed_back(*it);
-      }
+      LOOP(PLC c, connRange) { c.second->feed_back(*it); }
     }
     for (SeqIterator it = layer->input_seq_rbegin(); !it.end; ++it) {
       layer->update_derivs(*it);
-      LOOP(PLC c, connRange) {
-        c.second->update_derivs(*it);
-      }
+      LOOP(PLC c, connRange) { c.second->update_derivs(*it); }
     }
   }
   virtual void feed_forward(const DataSequence& seq) {
     check(seq.inputs.size(), "empty inputs in sequence\n" + str(seq));
     errors.clear();
     inputLayer->copy_inputs(seq.inputs);
-    LOOP(Layer* layer, hiddenLayers) {
-      feed_forward_layer(layer);
-    }
-    LOOP(Layer* layer, outputLayers) {
-      feed_forward_layer(layer);
-    }
+    LOOP(Layer * layer, hiddenLayers) { feed_forward_layer(layer); }
+    LOOP(Layer * layer, outputLayers) { feed_forward_layer(layer); }
   }
   virtual real_t calculate_output_errors(const DataSequence& seq) {
     real_t error = 0;
@@ -373,7 +372,7 @@ struct Mdrnn {
       normFactors = l->normFactors;
     } else {
       normFactors.clear();
-      LOOP(NetworkOutput* l, outputs) {
+      LOOP(NetworkOutput * l, outputs) {
         error += l->calculate_errors(seq);
         string layerPrefix = dynamic_cast<Named*>(l)->name + '_';
         LOOP(const PSD& p, l->errorMap) {
@@ -395,12 +394,8 @@ struct Mdrnn {
   }
 
   virtual void feed_back() {
-    LOOP_BACK(Layer* layer, outputLayers) {
-      feed_back_layer(layer);
-    }
-    LOOP_BACK(Layer* layer, hiddenLayers) {
-      feed_back_layer(layer);
-    }
+    LOOP_BACK(Layer * layer, outputLayers) { feed_back_layer(layer); }
+    LOOP_BACK(Layer * layer, hiddenLayers) { feed_back_layer(layer); }
   }
 
   virtual real_t train(const DataSequence& seq) {
@@ -420,9 +415,7 @@ struct Mdrnn {
       }
       out << *layer << endl;
     }
-    LOOP(const Layer* layer, outputLayers) {
-      out << *layer << endl;
-    }
+    LOOP(const Layer* layer, outputLayers) { out << *layer << endl; }
     prt_line(out);
     out << connections.size() << " connections:" << endl;
     for (CONST_CONN_IT it = connections.begin(); it != connections.end();
@@ -445,6 +438,6 @@ struct Mdrnn {
   }
 };
 
-ostream& operator << (ostream& out, const Mdrnn& net);
+ostream& operator<<(ostream& out, const Mdrnn& net);
 
 #endif

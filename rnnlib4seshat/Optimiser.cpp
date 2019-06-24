@@ -39,7 +39,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 #include "Optimiser.hpp"
 
-ostream& operator << (ostream& out, const Optimiser& o) {
+ostream& operator<<(ostream& out, const Optimiser& o) {
   o.print(out);
   return out;
 }

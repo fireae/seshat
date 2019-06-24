@@ -18,18 +18,18 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #ifndef _INCLUDED_String_h
 #define _INCLUDED_String_h
 
-#include "Helpers.hpp"
 #include "Container.hpp"
+#include "Helpers.hpp"
 
 static string ordinal(size_t n) {
   string s = str(n);
   if (n < 100) {
     char c = nth_last(s);
-    if(c == '1') {
+    if (c == '1') {
       return s + "st";
-    } else if(c == '2') {
+    } else if (c == '2') {
       return s + "nd";
-    } else if(c == '3') {
+    } else if (c == '3') {
       return s + "rd";
     }
   }
@@ -38,10 +38,10 @@ static string ordinal(size_t n) {
 static void trim(string& str) {
   size_t startpos = str.find_first_not_of(" \t\n");
   size_t endpos = str.find_last_not_of(" \t\n");
-  if(string::npos == startpos || string::npos == endpos) {
+  if (string::npos == startpos || string::npos == endpos) {
     str = "";
   } else {
-    str = str.substr(startpos, endpos-startpos + 1);
+    str = str.substr(startpos, endpos - startpos + 1);
   }
 }
 static const string lower(const string& s) {
@@ -68,33 +68,35 @@ static bool ends(const string& str, const string& search) {
 static bool ends(const string& str, const char* search) {
   return ends(str, string(search));
 }
-template<class T> static Vector<T> split(
-    const string& original, char delim = ' ', size_t maxSplits = 0) {
+template <class T>
+static Vector<T> split(const string& original, char delim = ' ',
+                       size_t maxSplits = 0) {
   Vector<T> vect;
   stringstream ss;
   ss << original;
   string s;
   while (delim == ' ' ? ss >> s : getline(ss, s, delim)) {
     vect += read<T>(s);
-    if (vect.size() == maxSplits-1) {
+    if (vect.size() == maxSplits - 1) {
       delim = '\0';
     }
   }
   return vect;
 }
-template<class T> static Vector<T> split_with_repeat(
-    const string& original, char delim = ' ', char repeater = '*') {
+template <class T>
+static Vector<T> split_with_repeat(const string& original, char delim = ' ',
+                                   char repeater = '*') {
   Vector<T> vect;
   LOOP(const string& s1, split<string>(original, delim)) {
     vector<string> v = split<string>(s1, repeater);
     size_t numRepeats = (v.size() == 1 ? 1 : natural(v[1]));
     T val = read<T>(v[0]);
-    vect += val, repeat(numRepeats-1, val);
+    vect += val, repeat(numRepeats - 1, val);
   }
   return vect;
 }
-template<class T, class R >static string join(
-    const R& r, const string joinStr = "") {
+template <class T, class R>
+static string join(const R& r, const string joinStr = "") {
   typename range_iterator<R>::type b = boost::begin(r);
   string s = str(*b);
   ++b;
@@ -104,7 +106,8 @@ template<class T, class R >static string join(
   return s;
 }
 
-template<class T> string left_pad(const T& val, int width, char fill = '0') {
+template <class T>
+string left_pad(const T& val, int width, char fill = '0') {
   ostringstream ss;
   ss << setw(width) << setfill(fill) << val;
   return ss.str();
@@ -112,7 +115,7 @@ template<class T> string left_pad(const T& val, int width, char fill = '0') {
 
 static string int_to_sortable_string(size_t num, size_t max) {
   assert(num < max);
-  return left_pad(num, str(max-1).size());
+  return left_pad(num, str(max - 1).size());
 }
 
 #endif

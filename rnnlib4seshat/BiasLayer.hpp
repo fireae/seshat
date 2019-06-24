@@ -43,27 +43,24 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <vector>
 #include "Layer.hpp"
 
-struct BiasLayer: public Layer {
+struct BiasLayer : public Layer {
   // data
   View<real_t> acts;
   View<real_t> errors;
 
   // functions
-  BiasLayer(WeightContainer *wc, DataExportHandler *deh) :
-    Layer("bias", 0, 0, 1, wc, deh), acts(this->outputActivations[0]),
-      errors(this->outputErrors[0]) {
+  BiasLayer(WeightContainer* wc, DataExportHandler* deh)
+      : Layer("bias", 0, 0, 1, wc, deh),
+        acts(this->outputActivations[0]),
+        errors(this->outputErrors[0]) {
     acts.front() = 1;
   }
 
   ~BiasLayer() {}
 
-  const View<real_t> out_acts(const vector<int>& coords) {
-    return acts;
-  }
+  const View<real_t> out_acts(const vector<int>& coords) { return acts; }
 
-  const View<real_t> out_errs(const vector<int>& coords) {
-    return errors;
-  }
+  const View<real_t> out_errs(const vector<int>& coords) { return errors; }
 };
 
 #endif

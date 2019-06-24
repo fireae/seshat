@@ -50,7 +50,8 @@ the following copyright and permission notice:
 
 using namespace std;
 
-typedef multimap<std::string, boost::tuple<string, string, int, int> >::iterator WC_CONN_IT;
+typedef multimap<std::string, boost::tuple<string, string, int, int> >::iterator
+    WC_CONN_IT;
 typedef pair<string, boost::tuple<string, string, int, int> > WC_CONN_PAIR;
 
 struct WeightContainer : public DataExporter {

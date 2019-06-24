@@ -45,7 +45,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <vector>
 #include "Layer.hpp"
 
-struct BlockLayer: public Layer {
+struct BlockLayer : public Layer {
   // data
   vector<size_t> blockShape;
   vector<int> blockOffset;
@@ -55,21 +55,20 @@ struct BlockLayer: public Layer {
   vector<size_t> outSeqShape;
 
   // functions
-  BlockLayer(Layer* src, const vector<size_t>& blockshape, WeightContainer *weight, DataExportHandler *deh):
-      Layer(
-          src->name + "_block", src->num_seq_dims(), 0,
-          product(blockshape) * src->output_size(), weight, deh, src),
-      blockShape(blockshape),
-      blockOffset(this->num_seq_dims()),
-      inCoords(this->num_seq_dims()),
-      sourceSize(src->outputActivations.depth),
-      blockIterator(blockShape),
-      outSeqShape(this->num_seq_dims()) {
+  BlockLayer(Layer* src, const vector<size_t>& blockshape,
+             WeightContainer* weight, DataExportHandler* deh)
+      : Layer(src->name + "_block", src->num_seq_dims(), 0,
+              product(blockshape) * src->output_size(), weight, deh, src),
+        blockShape(blockshape),
+        blockOffset(this->num_seq_dims()),
+        inCoords(this->num_seq_dims()),
+        sourceSize(src->outputActivations.depth),
+        blockIterator(blockShape),
+        outSeqShape(this->num_seq_dims()) {
     assert(blockShape.size() == this->num_seq_dims());
     assert(!in(blockShape, 0));
-    wc->link_layers(
-        this->source->name, this->name,
-        this->source->name + "_to_" + this->name);
+    wc->link_layers(this->source->name, this->name,
+                    this->source->name + "_to_" + this->name);
     display(this->outputActivations, "activations");
     display(this->outputErrors, "errors");
   }
@@ -79,9 +78,8 @@ struct BlockLayer: public Layer {
   }
   void start_sequence() {
     for (int i = 0; i < outSeqShape.size(); ++i) {
-      outSeqShape.at(i) = ceil(
-          (real_t)this->source->output_seq_shape().at(i) /
-          (real_t)blockShape.at(i));
+      outSeqShape.at(i) = ceil((real_t)this->source->output_seq_shape().at(i) /
+                               (real_t)blockShape.at(i));
     }
     outputActivations.reshape(outSeqShape, 0);
     outputErrors.reshape(outputActivations, 0);

@@ -50,7 +50,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
 using namespace std;
 
-struct Rprop: public DataExporter, public Optimiser {
+struct Rprop : public DataExporter, public Optimiser {
   // data
   ostream& out;
   vector<real_t> deltas;
@@ -63,15 +63,24 @@ struct Rprop: public DataExporter, public Optimiser {
   real_t initDelta;
   real_t prevAvgDelta;
   bool online;
-  WeightContainer *wc;
+  WeightContainer* wc;
 
   // functions
-  Rprop(
-      const string& name, ostream& o, vector<real_t>& weights,
-      vector<real_t>& derivatives, WeightContainer *weight, DataExportHandler *deh, bool on = false):
-    DataExporter(name, deh), Optimiser(weights, derivatives), out(o),
-      etaChange(0.01), etaMin(0.5), etaPlus(1.2), minDelta(1e-9), maxDelta(0.2),
-    initDelta(0.01), prevAvgDelta(0), online(on), wc(weight) {
+  Rprop(const string& name, ostream& o, vector<real_t>& weights,
+        vector<real_t>& derivatives, WeightContainer* weight,
+        DataExportHandler* deh, bool on = false)
+      : DataExporter(name, deh),
+        Optimiser(weights, derivatives),
+        out(o),
+        etaChange(0.01),
+        etaMin(0.5),
+        etaPlus(1.2),
+        minDelta(1e-9),
+        maxDelta(0.2),
+        initDelta(0.01),
+        prevAvgDelta(0),
+        online(on),
+        wc(weight) {
     if (online) {
       SAVE(prevAvgDelta);
       SAVE(etaPlus);
@@ -86,7 +95,7 @@ struct Rprop: public DataExporter, public Optimiser {
     LOOP(int i, indices(wts)) {
       real_t deriv = derivs[i];
       real_t delta = deltas[i];
-      real_t derivTimesPrev =  deriv * prevDerivs[i];
+      real_t derivTimesPrev = deriv * prevDerivs[i];
       if (derivTimesPrev > 0) {
         deltas[i] = bound(delta * etaPlus, minDelta, maxDelta);
         wts[i] -= sign(deriv) * delta;
@@ -124,8 +133,8 @@ struct Rprop: public DataExporter, public Optimiser {
       prevDerivs.resize(wts.size());
       fill(deltas, initDelta);
       fill(prevDerivs, 0);
-      wc->save_by_conns(
-          deltas, ((name == "optimiser") ? "" : name + "_") + "deltas");
+      wc->save_by_conns(deltas,
+                        ((name == "optimiser") ? "" : name + "_") + "deltas");
       wc->save_by_conns(
           prevDerivs, ((name == "optimiser") ? "" : name + "_") + "prevDerivs");
     }

@@ -45,8 +45,9 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include "WeightContainer.hpp"
 #define PEEPS
 
-template <class CI, class CO, class G> struct LstmLayer: public Layer {
-  //data
+template <class CI, class CO, class G>
+struct LstmLayer : public Layer {
+  // data
   size_t numBlocks;
   size_t cellsPerBlock;
   size_t numCells;
@@ -67,63 +68,66 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
   vector<View<real_t> > nextFgActs;
   vector<View<real_t> > nextCellErrors;
 #ifdef PEEPS
-  LstmLayer<CI,CO,G>* peepSource;
+  LstmLayer<CI, CO, G>* peepSource;
   pair<size_t, size_t> peepRange;
 #endif
 
-  //functions
-  LstmLayer(
-	    const string& name, const vector<int>& directions, size_t nb, WeightContainer *wc, DataExportHandler *deh,
-      size_t cpb = 1, LstmLayer<CI,CO,G>* ps = 0):
-    Layer(name, directions, (cpb + directions.size() + 2) * nb, nb, wc, deh),
-      numBlocks(nb),
-      cellsPerBlock(cpb),
-      numCells(numBlocks * cellsPerBlock),
-      gatesPerBlock(this->num_seq_dims() + 2),
-      unitsPerBlock(gatesPerBlock + cellsPerBlock),
-      peepsPerBlock(gatesPerBlock * cellsPerBlock),
-      inGateActs(numBlocks),
-      forgetGateActs(numBlocks * this->num_seq_dims()),
-      outGateActs(numBlocks),
-      preOutGateActs(numCells),
-      states(numCells),
-      preGateStates(numCells),
-      cellErrors(numCells),
-      stateDelays(this->num_seq_dims()),
-      delayedCoords(this->num_seq_dims()),
-      oldStates(this->num_seq_dims()),
-      nextErrors(this->num_seq_dims()),
-      nextFgActs(this->num_seq_dims()),
-      nextCellErrors(this->num_seq_dims())
+  // functions
+  LstmLayer(const string& name, const vector<int>& directions, size_t nb,
+            WeightContainer* wc, DataExportHandler* deh, size_t cpb = 1,
+            LstmLayer<CI, CO, G>* ps = 0)
+      : Layer(name, directions, (cpb + directions.size() + 2) * nb, nb, wc,
+              deh),
+        numBlocks(nb),
+        cellsPerBlock(cpb),
+        numCells(numBlocks * cellsPerBlock),
+        gatesPerBlock(this->num_seq_dims() + 2),
+        unitsPerBlock(gatesPerBlock + cellsPerBlock),
+        peepsPerBlock(gatesPerBlock * cellsPerBlock),
+        inGateActs(numBlocks),
+        forgetGateActs(numBlocks * this->num_seq_dims()),
+        outGateActs(numBlocks),
+        preOutGateActs(numCells),
+        states(numCells),
+        preGateStates(numCells),
+        cellErrors(numCells),
+        stateDelays(this->num_seq_dims()),
+        delayedCoords(this->num_seq_dims()),
+        oldStates(this->num_seq_dims()),
+        nextErrors(this->num_seq_dims()),
+        nextFgActs(this->num_seq_dims()),
+        nextCellErrors(this->num_seq_dims())
 #ifdef PEEPS
-      ,peepSource(ps),
-      peepRange(peepSource ? peepSource->peepRange
-                : wc->new_parameters(
-                      peepsPerBlock*numBlocks, name, name, name + "_peepholes"))
+        ,
+        peepSource(ps),
+        peepRange(peepSource
+                      ? peepSource->peepRange
+                      : wc->new_parameters(peepsPerBlock * numBlocks, name,
+                                           name, name + "_peepholes"))
 #endif
   {
     if (peepSource) {
-      wc->link_layers(
-          name, name, name + "_peepholes", peepRange.first, peepRange.second);
+      wc->link_layers(name, name, name + "_peepholes", peepRange.first,
+                      peepRange.second);
     }
 
-    //initialise the state delays
+    // initialise the state delays
     LOOP(int i, span(this->num_seq_dims())) {
       stateDelays[i].resize(this->num_seq_dims(), 0);
       stateDelays[i][i] = -directions[i];
     }
-    //export the data
-    //display(this->inputActivations, "inputActivations");
-    //display(this->outputActivations, "outputActivations");
-    //display(this->inputErrors, "inputErrors");
-    //display(this->outputErrors, "outputErrors");
-    //DISPLAY(cellErrors);
-    //DISPLAY(states);
-    //DISPLAY(inGateActs);
-    //DISPLAY(forgetGateActs);
-    //DISPLAY(outGateActs);
+    // export the data
+    // display(this->inputActivations, "inputActivations");
+    // display(this->outputActivations, "outputActivations");
+    // display(this->inputErrors, "inputErrors");
+    // display(this->outputErrors, "outputErrors");
+    // DISPLAY(cellErrors);
+    // DISPLAY(states);
+    // DISPLAY(inGateActs);
+    // DISPLAY(forgetGateActs);
+    // DISPLAY(outGateActs);
   }
-  ~LstmLayer() { }
+  ~LstmLayer() {}
   void start_sequence() {
     Layer::start_sequence();
     inGateActs.reshape(this->output_seq_shape());
@@ -144,12 +148,11 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
     real_t* preGateStateBegin = preGateStates[coords].begin();
     real_t* preOutGateActBegin = preOutGateActs[coords].begin();
     LOOP(int d, span(this->num_seq_dims())) {
-      oldStates[d] = states.at(range_plus(
-          delayedCoords, coords, stateDelays[d]));
+      oldStates[d] =
+          states.at(range_plus(delayedCoords, coords, stateDelays[d]));
     }
 #ifdef PEEPS
-    const real_t* peepWtIt = wc->get_weights(
-        peepRange).begin();
+    const real_t* peepWtIt = wc->get_weights(peepRange).begin();
 #endif
     int cellStart = 0;
     int cellEnd = cellsPerBlock;
@@ -157,8 +160,8 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
     LOOP(int b, span(numBlocks)) {
 #ifdef PEEPS
       View<real_t> fgActs(fgActBegin, fgActEnd);
-      //input gate
-      //extra inputs from peepholes (from old states)
+      // input gate
+      // extra inputs from peepholes (from old states)
       LOOP(const View<real_t>& os, oldStates) {
         if (os.begin()) {
           dot(os.begin() + cellStart, os.begin() + cellEnd, peepWtIt, inActIt,
@@ -171,8 +174,8 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
       inGateActBegin[b] = inGateAct;
       ++inActIt;
 
-      //forget gates
-      //extra inputs from peepholes (from old states)
+      // forget gates
+      // extra inputs from peepholes (from old states)
       LOOP(int d, span(this->num_seq_dims())) {
 #ifdef PEEPS
         const View<real_t>& os = oldStates[d];
@@ -186,13 +189,12 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
         ++inActIt;
       }
 
-      //pre-gate cell states
-      transform(
-          inActIt, inActIt + cellsPerBlock, preGateStateBegin + cellStart,
-          CI::fn);
+      // pre-gate cell states
+      transform(inActIt, inActIt + cellsPerBlock, preGateStateBegin + cellStart,
+                CI::fn);
       inActIt += cellsPerBlock;
 
-      //cell states
+      // cell states
       LOOP(int c, span(cellStart, cellEnd)) {
         real_t state = inGateAct * preGateStateBegin[c];
         LOOP(int d, span(this->num_seq_dims())) {
@@ -205,8 +207,8 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
         preOutGateActBegin[c] = CO::fn(state);
       }
 
-      //output gate
-      //extra input from peephole (from current state)
+        // output gate
+        // extra input from peephole (from current state)
 #ifdef PEEPS
       dot(stateBegin + cellStart, stateBegin + cellEnd, peepWtIt, inActIt,
           inActIt + 1);
@@ -217,10 +219,10 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
       outGateActBegin[b] = outGateAct;
       ++inActIt;
 
-      //output activations
-      transform(
-          preOutGateActBegin + cellStart, preOutGateActBegin + cellEnd,
-          actBegin + cellStart, bind2nd(multiplies<real_t>(), outGateAct));
+      // output activations
+      transform(preOutGateActBegin + cellStart, preOutGateActBegin + cellEnd,
+                actBegin + cellStart,
+                bind2nd(multiplies<real_t>(), outGateAct));
       cellStart = cellEnd;
       cellEnd += cellsPerBlock;
       fgActBegin = fgActEnd;
@@ -228,25 +230,24 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
     }
   }
   void feed_back(const vector<int>& coords) {
-    //activations
+    // activations
     const real_t* inGateActBegin = inGateActs[coords].begin();
     const real_t* forgetGateActBegin = forgetGateActs[coords].begin();
     const real_t* outGateActBegin = outGateActs[coords].begin();
     const real_t* preGateStateBegin = preGateStates[coords].begin();
     const real_t* preOutGateActBegin = preOutGateActs[coords].begin();
 
-    //errors
+    // errors
     View<real_t> inErrs = this->inputErrors[coords];
     real_t* cellErrorBegin = cellErrors[coords].begin();
     const real_t* outputErrorBegin = this->outputErrors[coords].begin();
     real_t* errorIt = inErrs.begin();
 #ifdef PEEPS
-    const real_t* peepWtIt =
-        wc->get_weights(peepRange).begin();
+    const real_t* peepWtIt = wc->get_weights(peepRange).begin();
 #endif
     LOOP(int d, span(this->num_seq_dims())) {
-      oldStates[d] = states.at(range_plus(
-          delayedCoords, coords, stateDelays[d]));
+      oldStates[d] =
+          states.at(range_plus(delayedCoords, coords, stateDelays[d]));
       range_minus(delayedCoords, coords, stateDelays[d]);
       nextErrors[d] = this->inputErrors.at(delayedCoords);
       nextFgActs[d] = forgetGateActs.at(delayedCoords);
@@ -260,13 +261,13 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
       real_t inGateAct = inGateActBegin[b];
       real_t outGateAct = outGateActBegin[b];
 
-      //output gate error
+      // output gate error
       real_t outGateError = G::deriv(outGateAct) *
-          inner_product(
-              preOutGateActBegin + cellStart, preOutGateActBegin + cellEnd,
-              outputErrorBegin + cellStart, 0.0);
+                            inner_product(preOutGateActBegin + cellStart,
+                                          preOutGateActBegin + cellEnd,
+                                          outputErrorBegin + cellStart, 0.0);
 
-      //cell pds (dE/dState)
+      // cell pds (dE/dState)
       LOOP(int c, span(cellStart, cellEnd)) {
         real_t deriv =
             CO::deriv(preOutGateActBegin[c]) * outGateAct * outputErrorBegin[c];
@@ -284,7 +285,7 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
           if (nextErrs.begin()) {
 #ifdef PEEPS
             deriv += (nextErrs[gateStart + 1 + d] * fgPeepWt) +
-                (nextErrs[gateStart] * igPeepWt);
+                     (nextErrs[gateStart] * igPeepWt);
 #endif
             deriv += (nextFgActs[d][fgStart + d] * nextCellErrors[d][c]);
           }
@@ -292,28 +293,28 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
         cellErrorBegin[c] = deriv;
       }
 
-      //input gate error
-      *errorIt = G::deriv(inGateAct) *
-          inner_product(
-              cellErrorBegin + cellStart, cellErrorBegin + cellEnd,
-              preGateStateBegin + cellStart, 0.0);
+      // input gate error
+      *errorIt =
+          G::deriv(inGateAct) *
+          inner_product(cellErrorBegin + cellStart, cellErrorBegin + cellEnd,
+                        preGateStateBegin + cellStart, 0.0);
       ++errorIt;
 
-      //forget gate error
+      // forget gate error
       LOOP(int d, span(this->num_seq_dims())) {
         const View<real_t>& os = oldStates[d];
         if (os.begin()) {
           *errorIt = G::deriv(forgetGateActBegin[fgStart + d]) *
-              inner_product(
-                  cellErrorBegin + cellStart, cellErrorBegin + cellEnd,
-                  os.begin() + cellStart, 0.0);
+                     inner_product(cellErrorBegin + cellStart,
+                                   cellErrorBegin + cellEnd,
+                                   os.begin() + cellStart, 0.0);
         } else {
           *errorIt = 0;
         }
         ++errorIt;
       }
 
-      //cell errors
+      // cell errors
       LOOP(int c, span(cellStart, cellEnd)) {
         *errorIt =
             inGateAct * CI::deriv(preGateStateBegin[c]) * cellErrorBegin[c];
@@ -330,20 +331,19 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
       gateStart += unitsPerBlock;
     }
 
-    //constrain errors to be in [-1,1] for stability
+    // constrain errors to be in [-1,1] for stability
     if (!runningGradTest) {
       bound_range(inErrs, -1.0, 1.0);
     }
   }
 #ifdef PEEPS
-  void update_derivs(const vector<int>& coords)
-  {
+  void update_derivs(const vector<int>& coords) {
     const real_t* stateBegin = states[coords].begin();
     const real_t* errorBegin = this->inputErrors[coords].begin();
     real_t* pdIt = wc->get_derivs(peepRange).begin();
     LOOP(int d, span(this->num_seq_dims())) {
-      oldStates[d] = states.at(range_plus(
-          delayedCoords, coords, stateDelays[d]));
+      oldStates[d] =
+          states.at(range_plus(delayedCoords, coords, stateDelays[d]));
     }
     LOOP(int b, span(numBlocks)) {
       int cellStart = b * cellsPerBlock;
@@ -353,8 +353,7 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
       LOOP(int d, span(this->num_seq_dims())) {
         const View<real_t>& os = oldStates[d];
         if (os.begin()) {
-          LOOP(int c, span(cellStart, cellEnd))
-          {
+          LOOP(int c, span(cellStart, cellEnd)) {
             pdIt[c - cellStart] += inGateError * os[c];
           }
           real_t forgGateError = errorBegin[errorOffset + d + 1];
@@ -379,9 +378,7 @@ template <class CI, class CO, class G> struct LstmLayer: public Layer {
       out << " (shared with " << peepSource->name << ")";
     }
   }
-  const View<real_t> weights() {
-    return wc->get_weights(peepRange);
-  }
+  const View<real_t> weights() { return wc->get_weights(peepRange); }
 #endif
 };
 

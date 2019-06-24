@@ -37,35 +37,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef _INCLUDED_IdentityLayer_h  
-#define _INCLUDED_IdentityLayer_h  
+#ifndef _INCLUDED_IdentityLayer_h
+#define _INCLUDED_IdentityLayer_h
 
-#include "Layer.hpp"
 #include "Helpers.hpp"
+#include "Layer.hpp"
 
-struct IdentityLayer: public FlatLayer
-{	
-	//functions
-  IdentityLayer(const string& name, size_t numSeqDims, size_t size, WeightContainer *weight, DataExportHandler *deh):
-    FlatLayer(name, numSeqDims, size, weight, deh)
-	{
-		display(this->outputErrors, "errors");
-		display(this->outputActivations, "activations");
-	}
-  IdentityLayer(const string& name, const vector<int>& directions, size_t size, WeightContainer *weight, DataExportHandler *deh):
-    FlatLayer(name, directions, size, weight, deh)
-	{
-		display(this->outputErrors, "errors");
-		display(this->outputActivations, "activations");
-	}
-	void feed_forward(const vector<int>& coords)
-	{
-		copy(this->inputActivations[coords], this->outputActivations[coords]);
-	}
-	void feed_back(const vector<int>& coords)
-	{
-		copy(this->outputErrors[coords], this->inputErrors[coords]);
-	}
+struct IdentityLayer : public FlatLayer {
+  // functions
+  IdentityLayer(const string& name, size_t numSeqDims, size_t size,
+                WeightContainer* weight, DataExportHandler* deh)
+      : FlatLayer(name, numSeqDims, size, weight, deh) {
+    display(this->outputErrors, "errors");
+    display(this->outputActivations, "activations");
+  }
+  IdentityLayer(const string& name, const vector<int>& directions, size_t size,
+                WeightContainer* weight, DataExportHandler* deh)
+      : FlatLayer(name, directions, size, weight, deh) {
+    display(this->outputErrors, "errors");
+    display(this->outputActivations, "activations");
+  }
+  void feed_forward(const vector<int>& coords) {
+    copy(this->inputActivations[coords], this->outputActivations[coords]);
+  }
+  void feed_back(const vector<int>& coords) {
+    copy(this->outputErrors[coords], this->inputErrors[coords]);
+  }
 };
 
 #endif
