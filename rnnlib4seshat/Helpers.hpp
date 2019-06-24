@@ -71,7 +71,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <string>
 #include <utility>
 #include "Log.hpp"
-#include "cblas.h"
+//#include "cblas.h"
 
 using namespace boost;
 using namespace boost::assign;
@@ -681,15 +681,15 @@ static T range_indep_gauss_pdf(const R1& variables, const R2& means,
 }
 template <typename C>
 C inner_product(const real_t* a, const real_t* aEnd, const real_t* b, C c) {
-  if (c == 0) {
-    return
-#ifdef FLOAT_REALS
-        cblas_sdot
-#else
-        cblas_ddot
-#endif
-        (aEnd - a, a, 1, b, 1);
-  }
+//   if (c == 0) {
+//     return
+// #ifdef FLOAT_REALS
+//         cblas_sdot
+// #else
+//         cblas_ddot
+// #endif
+//         (aEnd - a, a, 1, b, 1);
+//   }
   return std::inner_product(a, aEnd, b, c);
 }
 template <typename C>

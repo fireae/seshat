@@ -1,6 +1,6 @@
 CC=g++
-LINK=-lxerces-c -lm -lopenblas -L/home/wencc/Projects/rnnlib/install/lib
-FLAGS = -std=c++11 -O3 -Wno-unused-result -I/home/wencc/Projects/rnnlib/boost -I/home/wencc/Projects/rnnlib/openblas -I/home/wencc/Projects/rnnlib/src -I/home/wencc/Projects/rnnlib/install/include -I/home/wencc/Projects/rnnlib/netcdf-cxx/cxx -DBOOST_NO_CXX11_VARIADIC_TEMPLATES=1
+LINK=-lxerces-c -lm #-lopenblas -L/home/wencc/Projects/rnnlib/install/lib
+FLAGS = -std=c++11 -O3 -Wno-unused-result -I/home/wencc/Projects/rnnlib/boost #-I/home/wencc/Projects/rnnlib/openblas -I/home/wencc/Projects/rnnlib/src -I/home/wencc/Projects/rnnlib/install/include -I/home/wencc/Projects/rnnlib/netcdf-cxx/cxx -DBOOST_NO_CXX11_VARIADIC_TEMPLATES=1
 
 OBJFEAS=symfeatures.o featureson.o online.o
 OBJMUESTRA=sample.o stroke.o
