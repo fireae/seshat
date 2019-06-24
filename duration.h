@@ -24,7 +24,7 @@
 
 using namespace std;
 
-class DurationModel{
+class DurationModel {
   int max_strokes;
   int Nsyms;
   float **duration_prob;

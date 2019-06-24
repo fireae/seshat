@@ -18,26 +18,23 @@
 #ifndef __GMM__
 #define __GMM__
 
+#include <cfloat>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <cmath>
-#include <cfloat>
 
-
-class GMM{
+class GMM {
   int C, D, G;
   float **invcov, **mean, **weight, *prior, *det;
 
-  void loadModel( char *str );
+  void loadModel(char *str);
   float pdf(int c, float *v);
 
  public:
-
   GMM(char *model);
   ~GMM();
 
   void posterior(float *x, float *pr);
 };
-
 
 #endif

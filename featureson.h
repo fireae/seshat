@@ -38,12 +38,12 @@ covered by the following copyright and permission notice:
 #ifndef FEATURES_H
 #define FEATURES_H
 
-#include <math.h>
-#include <iostream>
-#include <iomanip>
-#include <vector>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
+#include <iomanip>
+#include <iostream>
+#include <vector>
 #include "online.h"
 
 #define MAXNUMHATS 200
@@ -52,47 +52,53 @@ covered by the following copyright and permission notice:
 using namespace std;
 
 class frame {
-  public:
-    double x,y,dx,dy,ax,ay,k;
+ public:
+  double x, y, dx, dy, ax, ay, k;
 
-    void print(ostream & fd);
-    int get_fr_dim();
+  void print(ostream &fd);
+  int get_fr_dim();
 
-    double getFea(int i){
-      switch (i){
-      case 0: return x;
-      case 1: return y;
-      case 2: return dx;
-      case 3: return dy;
-      case 4: return ax;
-      case 5: return ay;
-      case 6: return k;
+  double getFea(int i) {
+    switch (i) {
+      case 0:
+        return x;
+      case 1:
+        return y;
+      case 2:
+        return dx;
+      case 3:
+        return dy;
+      case 4:
+        return ax;
+      case 5:
+        return ay;
+      case 6:
+        return k;
       default:
-	fprintf(stderr, "Error: getFea(%d)\n", i);
-	exit(-1);
-      }
+        fprintf(stderr, "Error: getFea(%d)\n", i);
+        exit(-1);
     }
+  }
 };
 
 class sentenceF {
-  public:
-    string transcrip;
-    int n_frames;
-    frame * frames;
-    
-    sentenceF();
-    ~sentenceF();
+ public:
+  string transcrip;
+  int n_frames;
+  frame *frames;
 
-    bool data_plot(ostream & fd);
-    bool print(ostream & fd);
+  sentenceF();
+  ~sentenceF();
 
-    void calculate_features(sentence &s);
+  bool data_plot(ostream &fd);
+  bool print(ostream &fd);
 
-  private:
-    vector<PointR> normalizaAspect(vector<Point> & puntos);
-    void calculate_derivatives(vector<PointR> & points, bool norm=true);
-    void calculate_kurvature();
+  void calculate_features(sentence &s);
+
+ private:
+  vector<PointR> normalizaAspect(vector<Point> &puntos);
+  void calculate_derivatives(vector<PointR> &points, bool norm = true);
+  void calculate_kurvature();
 };
-
 
 #endif

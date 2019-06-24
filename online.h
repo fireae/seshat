@@ -38,74 +38,58 @@ covered by the following copyright and permission notice:
 #ifndef ONLINE_H
 #define ONLINE_H
 
-#include <math.h>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <stdio.h>
-#include <stdlib.h>
 
 using namespace std;
 
-//Real point
+// Real point
 class PointR {
   // True if this is the last point of a stroke
   bool point_pu;
 
  public:
   float x, y;
-  
- PointR(float _x, float _y): x(_x), y(_y), point_pu(false) {}
-  PointR & operator= (const PointR & p) {
-    x=p.x; y=p.y;
-      point_pu=p.point_pu;
+
+  PointR(float _x, float _y) : x(_x), y(_y), point_pu(false) {}
+  PointR& operator=(const PointR& p) {
+    x = p.x;
+    y = p.y;
+    point_pu = p.point_pu;
     return *this;
   }
-  bool operator ==(const PointR & p) const {
-    return p.x==x && p.y==y;
-  }
-  bool operator !=(const PointR & p) const {
-    return p.x!=x || p.y!=y;
-  }
-  void setpu() {
-    point_pu=1;
-  }
-  bool getpu() {
-    return point_pu;
-  }
+  bool operator==(const PointR& p) const { return p.x == x && p.y == y; }
+  bool operator!=(const PointR& p) const { return p.x != x || p.y != y; }
+  void setpu() { point_pu = 1; }
+  bool getpu() { return point_pu; }
 };
 
-
-
-//Integer point
+// Integer point
 class Point {
   // True if this is the last point of a stroke
   bool point_pu;
+
  public:
   int x, y;
-  
- Point(int _x, int _y): x(_x), y(_y), point_pu(false) {}
-  Point & operator= (const Point & p) {
-    x=p.x; y=p.y;
-    point_pu=p.point_pu;
+
+  Point(int _x, int _y) : x(_x), y(_y), point_pu(false) {}
+  Point& operator=(const Point& p) {
+    x = p.x;
+    y = p.y;
+    point_pu = p.point_pu;
     return *this;
   }
-  bool operator == (const Point & p) const {
-    return p.x==x && p.y==y;
-  }
-  bool operator !=(const Point & p) const {
-    return p.x!=x || p.y!=y;
-  }
-  void setpu() {
-    point_pu=1;
-  }
-  bool getpu() {
-    return point_pu;
-  }
+  bool operator==(const Point& p) const { return p.x == x && p.y == y; }
+  bool operator!=(const Point& p) const { return p.x != x || p.y != y; }
+  void setpu() { point_pu = 1; }
+  bool getpu() { return point_pu; }
 };
-
 
 class stroke {
  public:
@@ -113,26 +97,23 @@ class stroke {
   bool pen_down;
   bool is_hat;
   vector<Point> points;
-  
-  stroke(int n_p=0, bool pen_d=0, bool is_ht=0);
-  
+
+  stroke(int n_p = 0, bool pen_d = 0, bool is_ht = 0);
+
   int F_XMIN();
   int F_XMAX();
   int F_XMED();
 };
 
-
 class sentence {
  public:
   int n_strokes;
   vector<stroke> strokes;
-  
+
   sentence(int n_s);
-  
-  sentence * anula_rep_points();
-  sentence * suaviza_traza(int cont_size=2);
+
+  sentence* anula_rep_points();
+  sentence* suaviza_traza(int cont_size = 2);
 };
 
-
 #endif
- 

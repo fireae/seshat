@@ -17,10 +17,9 @@
 */
 #include "duration.h"
 
-
 DurationModel::DurationModel(char *str, int mxs, SymRec *sr) {
-  FILE *fd = fopen(str,"r");
-  if( !fd ) {
+  FILE *fd = fopen(str, "r");
+  if (!fd) {
     fprintf(stderr, "Error loading duration model '%s'\n", str);
     exit(-1);
   }
@@ -28,14 +27,13 @@ DurationModel::DurationModel(char *str, int mxs, SymRec *sr) {
   max_strokes = mxs;
   Nsyms = sr->getNClases();
 
-  duration_prob = new float*[Nsyms];
-  for(int i=0; i<Nsyms; i++) {
+  duration_prob = new float *[Nsyms];
+  for (int i = 0; i < Nsyms; i++) {
     duration_prob[i] = new float[max_strokes];
-    for(int j=0; j<max_strokes; j++)
-      duration_prob[i][j] = 0;
+    for (int j = 0; j < max_strokes; j++) duration_prob[i][j] = 0;
   }
 
-  loadModel(fd,sr);
+  loadModel(fd, sr);
 
   fclose(fd);
 }
@@ -44,34 +42,30 @@ void DurationModel::loadModel(FILE *fd, SymRec *sr) {
   char str[64];
   int count, nums;
 
-  //Load data
-  while( fscanf(fd, "%d %s %d", &count, str, &nums) == 3 ) {
-    if( nums <= max_strokes )
-      duration_prob[ sr->keyClase(str) ][nums-1] = count;
+  // Load data
+  while (fscanf(fd, "%d %s %d", &count, str, &nums) == 3) {
+    if (nums <= max_strokes) duration_prob[sr->keyClase(str)][nums - 1] = count;
   }
 
-  //Compute probabilities
-  for(int i=0; i<Nsyms; i++) {
-    int total=0;
+  // Compute probabilities
+  for (int i = 0; i < Nsyms; i++) {
+    int total = 0;
 
-    for(int j=0; j<max_strokes; j++) {
-      if( duration_prob[i][j] == 0 ) //Add-one smoothing
-	duration_prob[i][j] = 1;
+    for (int j = 0; j < max_strokes; j++) {
+      if (duration_prob[i][j] == 0)  // Add-one smoothing
+        duration_prob[i][j] = 1;
       total += duration_prob[i][j];
     }
-    
-    for(int j=0; j<max_strokes; j++)
-      duration_prob[i][j] /= total;
-  }
 
+    for (int j = 0; j < max_strokes; j++) duration_prob[i][j] /= total;
+  }
 }
 
 DurationModel::~DurationModel() {
-  for(int i=0; i<Nsyms; i++)
-    delete[] duration_prob[i];
+  for (int i = 0; i < Nsyms; i++) delete[] duration_prob[i];
   delete[] duration_prob;
 }
 
 float DurationModel::prob(int symclas, int size) {
-  return duration_prob[symclas][size-1];
+  return duration_prob[symclas][size - 1];
 }

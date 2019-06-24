@@ -21,13 +21,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include "cellcyk.h"
-#include "sample.h"
 #include "gmm.h"
+#include "sample.h"
 
 using namespace std;
 
-
-class SegmentationModelGMM{
+class SegmentationModelGMM {
   GMM *model;
 
  public:

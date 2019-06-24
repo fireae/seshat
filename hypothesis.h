@@ -24,38 +24,40 @@ class ProductionT;
 struct CellCYK;
 struct Grammar;
 
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
 #include <list>
-#include "production.h"
 #include "cellcyk.h"
 #include "grammar.h"
+#include "production.h"
 
 using namespace std;
 
-struct Hypothesis{
-  int clase; //If the hypothesis encodes a terminal symbols this is the class id (-1 otherwise)
-  double pr; //log-probability
+struct Hypothesis {
+  int clase;  // If the hypothesis encodes a terminal symbols this is the class
+              // id (-1 otherwise)
+  double pr;  // log-probability
 
-  //References to left-child (hi) and right-child (hd) to create the derivation tree
+  // References to left-child (hi) and right-child (hd) to create the derivation
+  // tree
   Hypothesis *hi, *hd;
 
-  //The production used to create this hypothesis (either Binary or terminal)
+  // The production used to create this hypothesis (either Binary or terminal)
   ProductionB *prod;
   ProductionT *pt;
 
-  //INKML_id for terminal symbols in order to create the InkML output
+  // INKML_id for terminal symbols in order to create the InkML output
   string inkml_id;
-  //Auxiliar var to retrieve the used production in the special SSE treatment
+  // Auxiliar var to retrieve the used production in the special SSE treatment
   ProductionB *prod_sse;
 
-  //Vertical center left and right
+  // Vertical center left and right
   int lcen, rcen;
 
-  CellCYK *parent; //Parent cell
-  int ntid;        //Nonterminal ID in parent
+  CellCYK *parent;  // Parent cell
+  int ntid;         // Nonterminal ID in parent
 
-  //Methods
+  // Methods
   Hypothesis(int c, double p, CellCYK *cd, int nt);
   ~Hypothesis();
 

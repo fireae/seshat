@@ -23,14 +23,14 @@ class Sample;
 class SymFeatures;
 
 #include <cstdio>
-#include <string>
 #include <cstring>
 #include <map>
+#include <string>
 #include <vector>
 #include "rnnlib4seshat/DataSequence.hpp"
-#include "rnnlib4seshat/NetcdfDataset.hpp"
 #include "rnnlib4seshat/Mdrnn.hpp"
 #include "rnnlib4seshat/MultilayerNet.hpp"
+#include "rnnlib4seshat/NetcdfDataset.hpp"
 #include "rnnlib4seshat/Rprop.hpp"
 #include "rnnlib4seshat/SteepestDescent.hpp"
 #include "rnnlib4seshat/Trainer.hpp"
@@ -50,38 +50,40 @@ class SymFeatures;
 
 using namespace std;
 
-
-class SymRec{
+class SymRec {
   SymFeatures *FEAS;
   DataHeader header_on, header_off;
   DataExportHandler deh_on, deh_off;
   WeightContainer *wc_on, *wc_off;
   Mdrnn *blstm_on, *blstm_off;
   float RNNalpha;
-  
-  //Symbol classes and types information
+
+  // Symbol classes and types information
   int *type;
-  map<string,int> cl2key;
+  map<string, int> cl2key;
   string *key2cl;
-  
-  int C; //Number of classes
-  
-  int  classify(Sample *M, SegmentHyp *SegHyp, const int NB, int *vclase, float *vpr, int *as, int *ds);
-  void BLSTMclassification( Mdrnn *net, DataSequence *seq, pair<float,int> *claspr, const int NB );
-  
+
+  int C;  // Number of classes
+
+  int classify(Sample *M, SegmentHyp *SegHyp, const int NB, int *vclase,
+               float *vpr, int *as, int *ds);
+  void BLSTMclassification(Mdrnn *net, DataSequence *seq,
+                           pair<float, int> *claspr, const int NB);
+
  public:
   SymRec(char *path);
   ~SymRec();
-  
-  char *strClase(int c);
-  int   keyClase(char *str);
-  bool  checkClase(char *str);
-  int   getNClases();
-  int   symType(int k);
-  
-  int clasificar(Sample *M, int ncomp,     const int NB, int *vclase, float *vpr, int *as, int *ds);
-  int clasificar(Sample *M, list<int> *LT, const int NB, int *vclase, float *vpr, int *as, int *ds);
-};
 
+  char *strClase(int c);
+  int keyClase(char *str);
+  bool checkClase(char *str);
+  int getNClases();
+  int symType(int k);
+
+  int clasificar(Sample *M, int ncomp, const int NB, int *vclase, float *vpr,
+                 int *as, int *ds);
+  int clasificar(Sample *M, list<int> *LT, const int NB, int *vclase,
+                 float *vpr, int *as, int *ds);
+};
 
 #endif

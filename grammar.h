@@ -21,17 +21,17 @@
 class gParser;
 
 #include <cstdio>
-#include <string>
-#include <map>
 #include <list>
-#include "production.h"
+#include <map>
+#include <string>
 #include "gparser.h"
+#include "production.h"
 #include "symrec.h"
 
 using namespace std;
 
-struct Grammar{
-  map<string,int> noTerminales;
+struct Grammar {
+  map<string, int> noTerminales;
   list<int> initsyms;
   bool *esInit;
   SymRec *sym_rec;

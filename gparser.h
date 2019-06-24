@@ -24,15 +24,16 @@ struct Grammar;
 #include <cstdlib>
 #include "grammar.h"
 
-class gParser{
+class gParser {
   Grammar *g;
   char *pre;
 
   bool isFillChar(char c);
-  int  split(char *str,char ***res);
+  int split(char *str, char ***res);
   bool nextLine(FILE *fd, char *lin);
   void solvePath(char *in, char *out);
-public:
+
+ public:
   gParser(Grammar *gram, FILE *fd, char *path);
   ~gParser();
 

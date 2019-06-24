@@ -22,22 +22,22 @@ class DataSequence;
 
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <istream>
-#include <fstream>
-#include <vector>
 #include <string>
-#include "online.h"
+#include <vector>
 #include "featureson.h"
+#include "online.h"
 #include "sample.h"
 
-class SymFeatures{
-  static const int  ON_FEAT = 7;
+class SymFeatures {
+  static const int ON_FEAT = 7;
   static const int OFF_FEAT = 9;
   double means_on[ON_FEAT], means_off[OFF_FEAT];
-  double  stds_on[ON_FEAT],  stds_off[OFF_FEAT];
-  
-public:
+  double stds_on[ON_FEAT], stds_off[OFF_FEAT];
+
+ public:
   SymFeatures(char *mav_on, char *mav_off);
   ~SymFeatures();
 

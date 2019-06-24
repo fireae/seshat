@@ -21,31 +21,30 @@
 class SymRec;
 class TableCYK;
 
+#include <climits>
 #include <cstdio>
 #include <list>
-#include <climits>
-#include "tablecyk.h"
 #include "cellcyk.h"
+#include "grammar.h"
 #include "stroke.h"
 #include "symrec.h"
-#include "grammar.h"
+#include "tablecyk.h"
 
 using namespace std;
 
-//Segmentation hypothesis
-struct SegmentHyp{
-  list<int> stks;  //List of strokes
+// Segmentation hypothesis
+struct SegmentHyp {
+  list<int> stks;  // List of strokes
 
-  //Bounding box (online coordinates)
-  int rx, ry; //Top-left
-  int rs, rt; //Bottom-right
+  // Bounding box (online coordinates)
+  int rx, ry;  // Top-left
+  int rs, rt;  // Bottom-right
 
   int cen;
 };
 
-
-class Sample{
-  vector<Stroke*> dataon;
+class Sample {
+  vector<Stroke *> dataon;
   float **stk_dis;
 
   int **dataoff;
@@ -55,7 +54,7 @@ class Sample{
 
   SymRec *SR;
 
-  //Information to create the output InkML file
+  // Information to create the output InkML file
   char *outinkml, *outdot;
   string UItag;
   int next_id;
@@ -67,14 +66,14 @@ class Sample{
   void linea_pbm(int **img, Punto *pa, Punto *pb, int stkid);
   bool not_visible(int si, int sj, Punto *pi, Punto *pj);
 
-public:
-  //Normalized reference symbol size
+ public:
+  // Normalized reference symbol size
   int RX, RY;
-  float INF_DIST;  //Infinite distance value (visibility)
-  float NORMF;     //Normalization factor for distances
+  float INF_DIST;  // Infinite distance value (visibility)
+  float NORMF;     // Normalization factor for distances
 
-  int ox, oy, os, ot; //Online bounding box
-  int bx, by, bs, bt; //Offline bounding box
+  int ox, oy, os, ot;  // Online bounding box
+  int bx, by, bs, bt;  // Offline bounding box
 
   Sample(char *in);
   ~Sample();
@@ -88,16 +87,16 @@ public:
   void getCentroids(CellCYK *cd, int *ce, int *as, int *ds);
   void getAVGstroke_size(float *avgw, float *avgh);
 
-  void  detRefSymbol();
-  void  compute_strokes_distances(int rx, int ry);
+  void detRefSymbol();
+  void compute_strokes_distances(int rx, int ry);
   float stroke_distance(int si, int sj);
   float getDist(int si, int sj);
-  void  get_close_strokes(int id, list<int> *L, float dist_th);
+  void get_close_strokes(int id, list<int> *L, float dist_th);
 
   float group_penalty(CellCYK *A, CellCYK *B);
-  bool  visibility(list<int> *strokes_list);
+  bool visibility(list<int> *strokes_list);
 
-  void setSymRec( SymRec *sr );
+  void setSymRec(SymRec *sr);
 
   void setRegion(CellCYK *c, int nComp);
   void setRegion(CellCYK *c, list<int> *LT);

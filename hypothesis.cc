@@ -45,5 +45,4 @@ void Hypothesis::copy(Hypothesis *H) {
   inkml_id = H->inkml_id;
 }
 
-Hypothesis::~Hypothesis() {
-}
+Hypothesis::~Hypothesis() {}

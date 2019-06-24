@@ -18,15 +18,15 @@
 #ifndef _STROKE_
 #define _STROKE_
 
+#include <climits>
 #include <cstdio>
 #include <cstdlib>
-#include <climits>
 #include <vector>
 
 using namespace std;
 
-struct Punto{
-  float x,y;
+struct Punto {
+  float x, y;
 
   Punto(float vx, float vy) {
     x = vx;
@@ -36,17 +36,16 @@ struct Punto{
   Punto() {}
 };
 
-
-class Stroke{
+class Stroke {
   Punto *pseq;
   int NP;
-  int id; //InkML information
+  int id;  // InkML information
 
  public:
-  //Coordinates of the region it defines
+  // Coordinates of the region it defines
   int rx, ry, rs, rt;
-  int cx, cy; //Centroid
-  
+  int cx, cy;  // Centroid
+
   Stroke(int np);
   Stroke(int np, FILE *fd);
   Stroke(FILE *fd);

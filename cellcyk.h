@@ -25,25 +25,24 @@ struct Hypothesis;
 
 using namespace std;
 
-struct CellCYK{
-  //Bounding box spatial region coordinates
-  int x,y; //top-left
-  int s,t; //bottom-right
+struct CellCYK {
+  // Bounding box spatial region coordinates
+  int x, y;  // top-left
+  int s, t;  // bottom-right
 
-  //Hypotheses for every non-terminals
+  // Hypotheses for every non-terminals
   int nnt;
   Hypothesis **noterm;
 
-  //Strokes covered in this cell
+  // Strokes covered in this cell
   int nc;
   bool *ccc;
-  int talla; //total number of strokes
+  int talla;  // total number of strokes
 
-  //Next cell in linked list (CYK table of same size)
+  // Next cell in linked list (CYK table of same size)
   CellCYK *sig;
 
-
-  //Methods
+  // Methods
   CellCYK(int n, int ncc);
   ~CellCYK();
 
@@ -52,6 +51,5 @@ struct CellCYK{
   bool ccEqual(CellCYK *H);
   bool compatible(CellCYK *H);
 };
-
 
 #endif

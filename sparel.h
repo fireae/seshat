@@ -21,12 +21,12 @@
 class CellCYK;
 
 #include <cstdio>
-#include "hypothesis.h"
 #include "cellcyk.h"
 #include "gmm.h"
+#include "hypothesis.h"
 #include "sample.h"
 
-class SpaRel{
+class SpaRel {
  public:
   static const int NRELS = 6;
   static const int NFEAT = 9;
@@ -48,7 +48,7 @@ class SpaRel{
   double getHorProb(Hypothesis *ha, Hypothesis *hb);
   double getSubProb(Hypothesis *ha, Hypothesis *hb);
   double getSupProb(Hypothesis *ha, Hypothesis *hb);
-  double getVerProb(Hypothesis *ha, Hypothesis *hb, bool strict=false);
+  double getVerProb(Hypothesis *ha, Hypothesis *hb, bool strict = false);
   double getInsProb(Hypothesis *ha, Hypothesis *hb);
   double getMrtProb(Hypothesis *ha, Hypothesis *hb);
 };
