@@ -153,8 +153,9 @@ struct BinaryClassificationLayer : public ClassificationLayer,
   }
   real_t set_error(int pt, int targetClass) {
     real_t targetProb = class_prob(pt, targetClass);
-    ((View<real_t>&)outputErrors[pt])[0] =
-        (targetClass ? -(1 / targetProb) : (1 / targetProb));
+    // ((View<real_t>&)outputErrors[pt])[0] =
+    //     (targetClass ? -(1 / targetProb) : (1 / targetProb));
+    outputErrors[pt][0] = (targetClass ? -(1 / targetProb) : (1 / targetProb));
     return log(targetProb);
   }
 };

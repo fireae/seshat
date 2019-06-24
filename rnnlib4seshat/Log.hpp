@@ -19,6 +19,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #define _INCLUDED_Log_h
 
 #include <math.h>
+#include <cmath>
 #include <iostream>
 
 using namespace std;

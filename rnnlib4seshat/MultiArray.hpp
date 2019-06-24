@@ -97,8 +97,8 @@ struct MultiArray {
     return inner_product(coords, strides);
   }
   const View<T> operator[](const vector<int>& coords) {
-    check(coords.size() <= shape.size(),
-          "operator [" + str(coords) + "] called with shape " + str(shape));
+    check(coords.size() <= shape.size(), "error");
+    //   "operator [" + str(coords) + "] called with shape " + str(shape));
     if (coords.empty()) {
       return View<T>(&data.front(), &data.front() + data.size());
     }

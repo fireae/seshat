@@ -56,6 +56,7 @@ along with RNNLIB.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <boost/lexical_cast.hpp>
 #include <boost/math/distributions.hpp>
 #include <boost/range.hpp>
+#include <boost/range/combine.hpp>
 #include <boost/range/irange.hpp>
 #include <boost/timer.hpp>
 #include <fstream>
@@ -94,11 +95,13 @@ using boost::tuple;
 
 #define FLOAT_REALS
 
-#ifdef FLOAT_REALS
+// #ifdef FLOAT_REALS
+// typedef float real_t;
+// #else
+// typedef double real_t;
+// #endif
+
 typedef float real_t;
-#else
-typedef double real_t;
-#endif
 
 typedef std::vector<size_t>::const_iterator VSTCI;
 typedef std::vector<real_t>::iterator VDI;
@@ -303,8 +306,8 @@ static void flood(R& r, size_t size,
   fill(r, v);
 }
 template <class R, class T>
-static typename range_iterator<R>::type find(R& r, const T& t) {
-  return find(boost::begin(r), boost::end(r), t);
+static typename range_iterator<R>::type rnnlib_find(R& r, const T& t) {
+  return std::find(boost::begin(r), boost::end(r), t);
 }
 template <class R1, class R2>
 static std::vector<typename boost::range_value<R1>::type>& select_channels(
@@ -327,6 +330,18 @@ static size_t count_adjacent(const R& r) {
   }
   return count;
 }
+
+template <class R1, class R2>
+static size_t range_min_size(const R1& a, const R2& b);
+template <class R1, class R2, class R3>
+static size_t range_min_size(const R1& a, const R2& b, const R3& c);
+template <class R1, class R2, class R3, class R4>
+static size_t range_min_size(const R1& a, const R2& b, const R3& c,
+                             const R4& d);
+template <class R1, class R2, class R3, class R4, class R5>
+static size_t range_min_size(const R1& a, const R2& b, const R3& c, const R4& d,
+                             const R5& e);
+
 template <class R1, class R2>
 std::pair<zip_iterator<boost::tuple<typename range_iterator<R1>::type,
                                     typename range_iterator<R2>::type> >,
@@ -340,17 +355,6 @@ zip(R1& r1, R2& r2) {
           boost::make_tuple(boost::end(r1) - (boost::size(r1) - size),
                             boost::end(r2) - (boost::size(r2) - size))));
 }
-
-template <class R1, class R2>
-static size_t range_min_size(const R1& a, const R2& b);
-template <class R1, class R2, class R3>
-static size_t range_min_size(const R1& a, const R2& b, const R3& c);
-template <class R1, class R2, class R3, class R4>
-static size_t range_min_size(const R1& a, const R2& b, const R3& c,
-                             const R4& d);
-template <class R1, class R2, class R3, class R4, class R5>
-static size_t range_min_size(const R1& a, const R2& b, const R3& c, const R4& d,
-                             const R5& e);
 
 template <class R1, class R2, class R3>
 static pair<zip_iterator<boost::tuple<typename range_iterator<R1>::type,
@@ -489,11 +493,11 @@ static UnaryFunction for_each(R& r, UnaryFunction f) {
 }
 template <class R, class T>
 static bool in(const R& r, const T& t) {
-  return find(r, t) != boost::end(r);
+  return rnnlib_find(r, t) != boost::end(r);
 }
 template <class R, class T>
 static size_t index(const R& r, const T& t) {
-  return distance(boost::begin(r), find(r, t));
+  return boost::distance(boost::begin(r), rnnlib_find(r, t));
 }
 template <class R>
 static void reverse(R& r) {
@@ -656,7 +660,8 @@ static size_t range_min_size(const R1& a, const R2& b, const R3& c, const R4& d,
 }
 template <class R>
 static int arg_max(const R& r) {
-  return distance(boost::begin(r), max_element(boost::begin(r), boost::end(r)));
+  return boost::distance(boost::begin(r),
+                         max_element(boost::begin(r), boost::end(r)));
 }
 // ARITHMETIC RANGE OPERATIONS
 template <class T1, class T2, class T3, class T4>
@@ -1132,13 +1137,13 @@ static real_t KL_normal(real_t pMean, real_t pVar, real_t qMean, real_t qVar) {
   return 0.5 *
          (log(qVar / pVar) - 1 + ((squared(pMean - qMean) + pVar) / qVar));
 }
-  // static real_t nats_to_bits(real_t nats) {
-  //   static real_t F = 1.0 / Log<real_t>::safe_log(2);
-  //   return F * nats;
-  // }
-  // static real_t bits_to_nats(real_t bits) {
-  //   static real_t F = Log<real_t>::safe_log(2);
-  //   return F * bits;
-  // }
+// static real_t nats_to_bits(real_t nats) {
+//   static real_t F = 1.0 / Log<real_t>::safe_log(2);
+//   return F * nats;
+// }
+// static real_t bits_to_nats(real_t bits) {
+//   static real_t F = Log<real_t>::safe_log(2);
+//   return F * bits;
+// }
 
 #endif
