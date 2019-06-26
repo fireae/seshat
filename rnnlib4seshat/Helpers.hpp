@@ -497,7 +497,7 @@ static bool in(const R& r, const T& t) {
 }
 template <class R, class T>
 static size_t index(const R& r, const T& t) {
-  return boost::distance(boost::begin(r), rnnlib_find(r, t));
+  return std::distance(boost::begin(r), rnnlib_find(r, t));
 }
 template <class R>
 static void reverse(R& r) {
@@ -660,7 +660,7 @@ static size_t range_min_size(const R1& a, const R2& b, const R3& c, const R4& d,
 }
 template <class R>
 static int arg_max(const R& r) {
-  return boost::distance(boost::begin(r),
+  return std::distance(boost::begin(r),
                          max_element(boost::begin(r), boost::end(r)));
 }
 // ARITHMETIC RANGE OPERATIONS
